@@ -76,5 +76,28 @@ df2 %>%
 
 
 
+## DATA TRANSFORMATION
+## select certain industries
 
+df_industry <- df2 %>%
+  dplyr::select(new_claim_date, month, year, total, total_year,
+                construction, manufacturing, wholesale_trade, retail_trade,
+                real_estate)
 
+## Transform wide data to long data
+
+df_industry2 <- df_industry %>%
+  gather(industry, claims, construction:real_estate); glimpse(df_industry2)
+
+## Plot
+df_industry2 %>%
+  filter(year == 2020) %>%
+  ggplot(aes(new_claim_date, claims, fill = industry)) +
+  geom_path()
+
+## By percent of total claims
+df_industry2 %>%
+  filter(year == 2020) %>%
+  mutate(pct = claims/total) %>%
+  ggplot(aes(new_claim_date, pct, fill = industry)) +
+  geom_path()
