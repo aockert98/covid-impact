@@ -28,7 +28,7 @@ df2 <- df %>%
   dplyr::mutate(total_month = sum(total))
 
 ## Find total number of claims by year
-df2 <- df %>%
+df2 <- df2 %>%
   dplyr::group_by(year) %>%
   dplyr::mutate(total_year = sum(total))
 
