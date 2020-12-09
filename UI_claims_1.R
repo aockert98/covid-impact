@@ -49,8 +49,9 @@ library(ggrepel)
 library(plotly)
 p1 <- df2 %>%
   dplyr::filter(year > 2018, month < 12) %>%
-  ggplot2::ggplot(ggplot2::aes(month3, total_month, fill = year, group = year)) +
+  ggplot2::ggplot(ggplot2::aes(month3, total_month, fill = as.factor(year))) +
   ggplot2::geom_col(position = "dodge") + 
+  ggplot2::scale_fill_discrete(name = "Year") + 
   ggplot2::labs(x = "Month", y = "Total claims",
        title = "Unemployment Insurance Claims by Month",
        fill = "Year") +
