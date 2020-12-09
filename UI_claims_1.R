@@ -28,12 +28,24 @@ df2 <- df %>%
   dplyr::group_by(year, month) %>%
   mutate(total_month = sum(total))
 
+## Find total number of claims by year
+df2 <- df %>%
+  dplyr::group_by(year) %>%
+  mutate(total_year = sum(total))
+
 df2$month2 <- as.character(format(df$new_claim_date, "%m"))
 
+
+class(df2$month2)
+df2$month3 <- as.factor(df2$month2)  
+class(df2$month3)
+
+## test plot
 df2 %>%
   ggplot(aes(new_claim_date, total)) +
   geom_point()
 
+## Plot 1: Interactive barplot 2019 and 2020
 library(ggrepel)
 library(plotly)
 p1 <- df2 %>%
@@ -48,8 +60,21 @@ p1 <- df2 %>%
 ggplotly(p1)
   
 
+## Plot by year
+library(gganimate)
+df2 %>%
+  ggplot(aes(year, total_year/1000)) +
+  geom_point() +
+  geom_path() +
+  labs(y = "Total Claims per year (in thousands)",
+       title = "COVID-19's Economic Impact in Connecticut",
+       subtitle = "Unemployment Insurance Claims 2005-2020") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(),
+        plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
 
 
-class(df2$month2)
-df2$month3 <- as.factor(df2$month2)  
-class(df2$month3)
+
+
+
