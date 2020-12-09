@@ -8,7 +8,6 @@
 
 ## Load relevant libraries
 library(dplyr)
-library(tidyverse)
 library(ggplot2)
 library(lubridate)
 library(RSocrata) # get data from ct.gov via API 
