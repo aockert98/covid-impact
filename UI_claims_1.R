@@ -8,14 +8,13 @@
 
 ## Load relevant libraries
 library(dplyr)
-library(tidyverse)
 library(ggplot2)
 library(lubridate)
 library(RSocrata) # get data from ct.gov via API 
 
 ## read in "UI Claims by Industry" as csv using 'read.socrata' function
 df <- RSocrata::read.socrata("https://data.ct.gov/resource/r437-8xv7.csv")
-glimpse(df)
+dplyr::glimpse(df)
 
 ## Create year and month columns using lubridate format function
 df$year <- as.numeric(format(df$new_claim_date, "%Y"))
@@ -26,12 +25,12 @@ df$month <- as.numeric(format(df$new_claim_date, "%m"))
 ## Find total number of claims by month (for each year)
 df2 <- df %>%
   dplyr::group_by(year, month) %>%
-  mutate(total_month = sum(total))
+  dplyr::mutate(total_month = sum(total))
 
 ## Find total number of claims by year
-df2 <- df %>%
+df2 <- df2 %>%
   dplyr::group_by(year) %>%
-  mutate(total_year = sum(total))
+  dplyr::mutate(total_year = sum(total))
 
 df2$month2 <- as.character(format(df$new_claim_date, "%m"))
 
@@ -42,22 +41,23 @@ class(df2$month3)
 
 ## test plot
 df2 %>%
-  ggplot(aes(new_claim_date, total)) +
-  geom_point()
+  ggplot2::ggplot(ggplot2::aes(new_claim_date, total)) +
+  ggplot2::geom_point()
 
 ## Plot 1: Interactive barplot 2019 and 2020
 library(ggrepel)
 library(plotly)
 p1 <- df2 %>%
-  filter(year > 2018, month < 12) %>%
-  ggplot(aes(month3, total_month, fill = year, group = year)) +
-  geom_col(position = "dodge") +
-  labs(x = "Month", y = "Total claims",
+  dplyr::filter(year > 2018, month < 12) %>%
+  ggplot2::ggplot(ggplot2::aes(month3, total_month, fill = as.factor(year))) +
+  ggplot2::geom_col(position = "dodge") + 
+  ggplot2::scale_fill_discrete(name = "Year") + 
+  ggplot2::labs(x = "Month", y = "Total claims",
        title = "Unemployment Insurance Claims by Month",
        fill = "Year") +
-  theme_minimal()
+  ggplot2::theme_minimal()
 
-ggplotly(p1)
+plotly::ggplotly(p1)
   
 
 ## Plot by year
