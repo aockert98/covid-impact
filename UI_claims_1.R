@@ -10,6 +10,7 @@
 library(dplyr)
 library(ggplot2)
 library(lubridate)
+library(tidyr)
 library(RSocrata) # get data from ct.gov via API 
 
 ## read in "UI Claims by Industry" as csv using 'read.socrata' function
@@ -49,13 +50,13 @@ library(ggrepel)
 library(plotly)
 p1 <- df2 %>%
   dplyr::filter(year > 2018, month < 12) %>%
-  ggplot2::ggplot(ggplot2::aes(month3, total_month, fill = as.factor(year))) +
+  ggplot2::ggplot(ggplot2::aes(month, total_month, fill = as.factor(year))) +
   ggplot2::geom_col(position = "dodge") + 
   ggplot2::scale_fill_discrete(name = "Year") + 
   ggplot2::labs(x = "Month", y = "Total claims",
        title = "Unemployment Insurance Claims by Month",
        fill = "Year") +
-  ggplot2::theme_minimal()
+  ggplot2::theme_minimal();p1
 
 plotly::ggplotly(p1)
   
@@ -63,14 +64,14 @@ plotly::ggplotly(p1)
 ## Plot by year
 library(gganimate)
 df2 %>%
-  ggplot(aes(year, total_year/1000)) +
-  geom_point() +
-  geom_path() +
-  labs(y = "Total Claims per year (in thousands)",
+  ggplot2::ggplot(aes(year, total_year/1000)) +
+  ggplot2::geom_point() +
+  ggplot2::geom_path() +
+  ggplot2::labs(y = "Total Claims per year (in thousands)",
        title = "COVID-19's Economic Impact in Connecticut",
        subtitle = "Unemployment Insurance Claims 2005-2020") +
-  theme_minimal() +
-  theme(axis.title.x = element_blank(),
+  ggplot2::theme_minimal() +
+  ggplot2::theme(axis.title.x = element_blank(),
         plot.title = element_text(hjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5))
 
@@ -85,19 +86,19 @@ df_industry <- df2 %>%
                 real_estate)
 
 ## Transform wide data to long data
-
 df_industry2 <- df_industry %>%
-  gather(industry, claims, construction:real_estate); glimpse(df_industry2)
+  tidyr::pivot_longer(cols = construction:real_estate, names_to = "industry",
+                      values_to = "claims")
 
 ## Plot
 df_industry2 %>%
-  filter(year == 2020) %>%
-  ggplot(aes(new_claim_date, claims, fill = industry)) +
-  geom_path()
+  dplyr::filter(year == 2020) %>%
+  ggplot2::ggplot(aes(new_claim_date, claims, fill = industry)) +
+  ggplot2::geom_path()
 
 ## By percent of total claims
 df_industry2 %>%
-  filter(year == 2020) %>%
-  mutate(pct = claims/total) %>%
-  ggplot(aes(new_claim_date, pct, fill = industry)) +
-  geom_path()
+  dplyr::filter(year == 2020) %>%
+  dplyr::mutate(pct = claims/total) %>%
+  ggplot2::ggplot(aes(new_claim_date, pct, fill = industry)) +
+  ggplot2::geom_path()
