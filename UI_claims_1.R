@@ -102,3 +102,16 @@ df_industry2 %>%
   dplyr::mutate(pct = claims/total) %>%
   ggplot2::ggplot(aes(new_claim_date, pct, fill = industry)) +
   ggplot2::geom_path()
+
+
+## Heatmap 
+## color scale needs work! will be tricky
+## interesting to see the next "darkest" row is 2008-09...
+df_industry2 %>%
+  ggplot2::ggplot(aes(x = month, y = year)) +
+  ggplot2::geom_tile(aes(fill = total)) +
+  scale_fill_gradientn(colors = cols(8))
+
+## create color palette
+cols <- colorRampPalette(colors = c("#f0c897","#c47055","#ad4534","#a22f24",
+                                    "#971913","#920e0b","#8c0303"))
