@@ -107,11 +107,21 @@ df_industry2 %>%
 ## Heatmap 
 ## color scale needs work! will be tricky
 ## interesting to see the next "darkest" row is 2008-09...
+
+## logged cases works MUCH better
+
 df_industry2 %>%
   ggplot2::ggplot(aes(x = month, y = year)) +
-  ggplot2::geom_tile(aes(fill = total)) +
-  scale_fill_gradientn(colors = cols(8))
+  ggplot2::geom_tile(aes(fill = log(total))) +
+  scale_fill_gradientn(colors = cols_logged(6)) +
+  labs(title = "COVID-19 and Connecticut's Economy", subtitle = "UI Claims") +
+  theme_minimal() +
+  theme(axis.title = element_blank(),
+        plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
 
 ## create color palette
 cols <- colorRampPalette(colors = c("#f0c897","#c47055","#ad4534","#a22f24",
                                     "#971913","#920e0b","#8c0303"))
+
+cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
