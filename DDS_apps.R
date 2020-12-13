@@ -7,6 +7,9 @@ library(lubridate)
 
 options(tigris_use_cache=TRUE)
 library(tigris)
+library(maps)
+library(USAboundaries)
+library(USAboundariesData)
 
 ## Download Weekly DSS Application Activity from data.ct.gov
 df <- RSocrata::read.socrata("https://data.ct.gov/resource/ymej-83fh.csv")
@@ -39,6 +42,37 @@ towns <- tigris::county_subdivisions(state = "Connecticut") %>%
   filter(NAMELSAD != "County subdivisions not defined")
 class(towns) #sf
 
-towns %>%
-  ggplot() +
-  geom_sf()
+## County borders
+map <- us_counties() %>%
+  filter(state_name == "Connecticut") %>%
+  rename(COUNTYFP = countyfp)
+
+
+ggplot() +
+  geom_sf(data = towns, fill = "white", color = "gray") +
+  geom_sf(data = map, color = "black", alpha = 0) +
+  labs(title = "Map of CT Towns and Counties") +
+  theme_void()
+
+## Covid town data
+
+covid_town <- RSocrata::read.socrata("https://data.ct.gov/resource/28fr-iqnx.csv")
+dplyr::glimpse(covid_town)
+
+covid_town %>%
+  filter(lastupdatedate > 2020-07-01) %>%
+  ggplot(aes(lastupdatedate, towntotalcases, color = town)) +
+  geom_path() +
+  theme(legend.position = "none")
+
+
+## Covid Ages
+## NEEDS MUCH CLEANING
+## age brackets-- remove spaces for some
+## find census pop data for age group if possible
+
+covid_age <- RSocrata::read.socrata("https://data.ct.gov/resource/ypz6-8qyf.csv")
+
+covid_age %>%
+  ggplot(aes(dateupdated,totalcases,color = agegroups)) +
+  geom_path()
