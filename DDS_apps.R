@@ -54,17 +54,50 @@ ggplot() +
   labs(title = "Map of CT Towns and Counties") +
   theme_void()
 
+
 ## Covid town data
 
 covid_town <- RSocrata::read.socrata("https://data.ct.gov/resource/28fr-iqnx.csv")
 dplyr::glimpse(covid_town)
 
-covid_town %>%
-  filter(lastupdatedate > 2020-07-01) %>%
-  ggplot(aes(lastupdatedate, towntotalcases, color = town)) +
+## Transform
+town_cases <- covid_town %>%
+  rename(date = lastupdatedate,
+         totalcases = towntotalcases,
+         per100k = towncaserate)
+
+town_cases %>%
+  ggplot(aes(date, per100k, color = town)) +
   geom_path() +
   theme(legend.position = "none")
 
+## Merge town map data with town covid data
+towns <- towns %>%
+  rename(town = NAME)
+
+all_together <- full_join(towns, town_cases, by = "town")
+
+## Map town covid data
+all_together2 <- all_together %>%
+  filter(date == "2020-12-10")
+
+p1 <- all_together2 %>%
+  ggplot() +
+  geom_sf() +
+  geom_sf(aes(fill = per100k)) +
+  labs(title = "The Coronavirus in Connecticut Towns",
+       subtitle = "Cases per 100,000",
+       fill = "") +
+  scale_fill_gradientn(colors = cols(10)) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
+library(plotly)
+ggplotly(p1)
+## Create color palette
+cols <- colorRampPalette(colors = c("#f9e8bf","#f2dc71","#eea353","#f78037",
+                                    "#ea4b24","#eb411f","#eb371a","#eb220f",
+                                    "#c11108","#960000"))
 
 ## Covid Ages
 ## NEEDS MUCH CLEANING
