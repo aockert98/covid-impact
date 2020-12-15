@@ -91,9 +91,28 @@ p1 <- all_together2 %>%
   scale_fill_gradientn(colors = cols(10)) +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))
+        plot.subtitle = element_text(hjust = 0.5)) ; p1
+
+all_together %>%
+  filter(date > "2020-08-01") %>%
+  ggplot() +
+  geom_sf() +
+  geom_sf(aes(fill = per100k)) +
+  labs(title = "The Coronavirus in Connecticut Towns",
+       subtitle = "Cases per 100,000 as of: {closest_state}",
+       fill = "") +
+  scale_fill_gradientn(colors = cols(10)) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) 
+ # transition_time(date) #animates
+
+
+library(gganimate)
+## Make interactive
 library(plotly)
 ggplotly(p1)
+
 ## Create color palette
 cols <- colorRampPalette(colors = c("#f9e8bf","#f2dc71","#eea353","#f78037",
                                     "#ea4b24","#eb411f","#eb371a","#eb220f",
