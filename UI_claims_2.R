@@ -104,7 +104,7 @@ df2 %>%
 ## Plot
 df_industry2 %>%
   dplyr::filter(year == 2020) %>%
-  ggplot2::ggplot(aes(new_claim_date, claims, fill = industry)) +
+  ggplot2::ggplot(aes(new_claim_date, claims, color = industry)) +
   ggplot2::geom_path()
 
 ## By percent of total claims
