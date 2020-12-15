@@ -167,7 +167,11 @@ df_industry3$Industry <- stringr::str_to_title(df_industry3$Industry)
 df_industry4 <- df_industry3
 df_industry4$Year = as.character(df_industry4$Year)
 
+
 DT::datatable(df_industry4,
               rownames = FALSE,
               filter = "top",
-              colnames = c("Total" = "total_month"))
+              colnames = c("Total" = "total_month"),
+              extensions = "Buttons",
+              options = list(dom = "Bfrtip",
+                             buttons = c("csv","excel","pdf")))
