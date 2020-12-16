@@ -18,12 +18,31 @@ library(plotly)
 library(RSocrata) # get data from ct.gov via API 
 
 ## read in "UI Claims by Industry" as csv using 'read.socrata' function
-df <- RSocrata::read.socrata("https://data.ct.gov/resource/r437-8xv7.csv")
+#df <- RSocrata::read.socrata("https://data.ct.gov/resource/r437-8xv7.csv")
+#dplyr::glimpse(df)
+
+## read in "UI Claims by Industry" csv from Data folder
+df <- read.csv("Data\\UI_Claims_by_Industry.csv")
+library(readr)
+#tsv format
+#df1 <- read_csv("Data\\UI_Claims_by_Industry.csv")
+
 dplyr::glimpse(df)
 
+## Remove time character that comes after the date
+df$New.Claim.Date <- sub(" .*", "", df$New.Claim.Date)
+## Convert date character string to date format
+df$New.Claim.Date <- lubridate::mdy(df$New.Claim.Date)
+class(df$New.Claim.Date) #check that it worked
+
+## extract year and month
+df$year <- as.numeric(format(df$New.Claim.Date, "%Y"))
+df$month <- as.numeric(format(df$New.Claim.Date, "%m"))
+
+## from API version
 ## Create year and month columns using lubridate format function
-df$year <- as.numeric(format(df$new_claim_date, "%Y"))
-df$month <- as.numeric(format(df$new_claim_date, "%m"))
+##df1$year <- as.numeric(format(df1$`New Claim Date`, "%Y"))
+##df$month <- as.numeric(format(df$New.Claim.Date, "%m"))
 
 
 
