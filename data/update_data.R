@@ -11,7 +11,7 @@ RSocrata::read.socrata("https://data.ct.gov/resource/ymej-83fh.csv") %>%
   # write the data frame out to the "data/dss_data.csv"; write out any NA values
   # in the data frame as empty strings
   readr::write_csv(
-    path = here::here("data/dds_data.csv"), 
+    path = here::here("data/dss_data.csv"), 
     na = ""
   )
 
