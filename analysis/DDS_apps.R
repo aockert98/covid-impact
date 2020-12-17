@@ -160,11 +160,33 @@ library(plotly)
 ggplotly(p1)
 
 ## Covid Ages
-## NEEDS MUCH CLEANING
-## age brackets-- remove spaces for some
 ## find census pop data for age group if possible
 
-covid_age <- RSocrata::read.socrata("https://data.ct.gov/resource/ypz6-8qyf.csv")
+covid_age <- readr::read_csv(
+  file = here::here("data/covid_age_data.csv")
+)
+
+# See that we need to scrub these age groups to create consistency
+unique(covid_age$agegroups)
+
+# Clean up 'covid_age' data frame...
+covid_age <- covid_age %>% 
+  dplyr::mutate(
+    # convert "dateupdated" column variable from type "datetime" to just type "date"
+    dateupdated = as.Date(dateupdated), 
+    # remove any whitespace in the values in the "agegroups" column variable
+    agegroups = stringr::str_replace_all(agegroups, " ", ""), 
+    # perform the following case logic...
+    agegroups = dplyr::case_when(
+      # convert values of "80andolder" in the "agegroups" column variable to "80+"
+      agegroups == "80andolder" ~ "80+", 
+      # it looks like Excel probably incorrectly formatted some values of "10-19" to
+      # "Oct-19" before they uploaded it; let's change those back to "10-19"
+      agegroups == "19-Oct" ~ "10-19", 
+      # for everything else, leave it as its current value
+      TRUE ~ agegroups
+    )
+  )
 
 covid_age %>%
   ggplot(aes(dateupdated,totalcases,color = agegroups)) +
