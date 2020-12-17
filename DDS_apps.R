@@ -67,7 +67,7 @@ df <- df %>%
   )
 
 
-df2 %>%
+df %>%
   ggplot(aes(week_ending_date, Applications,
              color = Type)) +
   geom_line() +
@@ -121,6 +121,12 @@ all_together <- full_join(towns, town_cases, by = "town")
 all_together2 <- all_together %>%
   filter(date == "2020-12-10")
 
+
+## Create color palette
+cols <- colorRampPalette(colors = c("#f9e8bf","#f2dc71","#eea353","#f78037",
+                                    "#ea4b24","#eb411f","#eb371a","#eb220f",
+                                    "#c11108","#960000"))
+
 p1 <- all_together2 %>%
   ggplot() +
   geom_sf() +
@@ -152,11 +158,6 @@ library(gganimate)
 ## Make interactive
 library(plotly)
 ggplotly(p1)
-
-## Create color palette
-cols <- colorRampPalette(colors = c("#f9e8bf","#f2dc71","#eea353","#f78037",
-                                    "#ea4b24","#eb411f","#eb371a","#eb220f",
-                                    "#c11108","#960000"))
 
 ## Covid Ages
 ## NEEDS MUCH CLEANING
