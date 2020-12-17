@@ -49,12 +49,12 @@ df$month <- as.numeric(format(df$New.Claim.Date, "%m"))
 ## Find total number of claims by month (for each year)
 df2 <- df %>%
   dplyr::group_by(year, month) %>%
-  dplyr::mutate(total_month = sum(total))
+  dplyr::mutate(total_month = sum(Total))
 
 ## Find total number of claims by year
 df2 <- df2 %>%
   dplyr::group_by(year) %>%
-  dplyr::mutate(total_year = sum(total))
+  dplyr::mutate(total_year = sum(Total))
 
 df2$month2 <- as.character(format(df$new_claim_date, "%m"))
 
@@ -72,22 +72,31 @@ class(df2$month3)
 ## select certain industries
 
 df_industry <- df2 %>%
-  dplyr::select(new_claim_date, month, year, total, total_year,
+  dplyr::select(New.Claim.Date, month, year, Total, total_year,
                 construction, manufacturing, wholesale_trade, retail_trade,
                 real_estate)
 
+df_industry <- df2 %>%
+  dplyr::select(New.Claim.Date, month, year, Total, total_month,total_year,
+                everything())
+
 ## Transform wide data to long data
+#df_industry2 <- df_industry %>%
+ # tidyr::pivot_longer(cols = construction:real_estate, names_to = "industry",
+  #                    values_to = "claims")
+library(tidyr)
+glimpse(df_industry)
 df_industry2 <- df_industry %>%
-  tidyr::pivot_longer(cols = construction:real_estate, names_to = "industry",
-                      values_to = "claims")
+ tidyr::pivot_longer(cols = Agric...Forestry..Fishing...Hunting:Other.Unknown,
+                     names_to = "industry", values_to = "claims")
 
 ## Naming Months
 dplyr::glimpse(df_industry2)
-df_industry2$month_abbr <- month(df_industry2$new_claim_date, label = TRUE)
+df_industry2$month_abbr <- month(df_industry2$New.Claim.Date, label = TRUE)
 
 ## test plot
 df2 %>%
-  ggplot2::ggplot(ggplot2::aes(new_claim_date, total)) +
+  ggplot2::ggplot(ggplot2::aes(New.Claim.Date, Total)) +
   ggplot2::geom_point()
 
 ## Plot 1: Interactive barplot 2019 and 2020
@@ -123,8 +132,9 @@ df2 %>%
 ## Plot
 df_industry2 %>%
   dplyr::filter(year == 2020) %>%
-  ggplot2::ggplot(aes(new_claim_date, claims, color = industry)) +
-  ggplot2::geom_path()
+  ggplot2::ggplot(aes(New.Claim.Date, log(claims), color = industry)) +
+  ggplot2::geom_path() +
+  theme(legend.position = "none")
 
 ## By percent of total claims
 df_industry2 %>%
@@ -139,10 +149,11 @@ df_industry2 %>%
 ## interesting to see the next "darkest" row is 2008-09...
 
 ## logged cases works MUCH better
+cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
 
 p2 <- df_industry2 %>%
   ggplot2::ggplot(aes(x = month_abbr, y = year)) +
-  ggplot2::geom_tile(aes(fill = log(total))) +
+  ggplot2::geom_tile(aes(fill = log(Total))) +
   scale_fill_gradientn(colors = cols_logged(6)) +
   labs(title = "COVID-19 and Connecticut's Economy", subtitle = "UI Claims by Month, 2005-2020",
        fill = "Total Claims (logged)") +
@@ -157,8 +168,25 @@ p2 <- df_industry2 %>%
 cols <- colorRampPalette(colors = c("#f0c897","#c47055","#ad4534","#a22f24",
                                     "#971913","#920e0b","#8c0303"))
 
-cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
 
+## Total claims per month per industry, by year
+df_industry3 <- df_industry2 %>%
+  dplyr::group_by(month, year, industry) %>%
+  dplyr::mutate(industry_month = sum(claims))
+df_industry3 <- df_industry3 %>%
+  dplyr::group_by(year, industry) %>%
+  dplyr::mutate(industry_year = sum(claims))
+
+
+## Transform year from continuous to discrete (factor)
+df_industry3$year_fact <- cut(df_industry3$year, breaks = c(2005:2021), 
+                              labels = c(2005:2020))
+## Plot
+df_industry3 %>%
+  filter(industry == "Construction",
+         year > 2018) %>%
+  ggplot(aes(month_abbr, industry_month, fill = year_fact)) +
+  geom_col(position = "dodge")
 
 
 
@@ -194,3 +222,7 @@ DT::datatable(df_industry4,
               extensions = "Buttons",
               options = list(dom = "Bfrtip",
                              buttons = c("csv","excel","pdf")))
+
+
+
+
