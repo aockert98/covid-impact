@@ -5,27 +5,67 @@ library(tidyr)
 library(ggplot2)
 library(lubridate)
 
-options(tigris_use_cache=TRUE)
+options(tigris_use_cache = TRUE)
 library(tigris)
 library(maps)
 library(USAboundaries)
 library(USAboundariesData)
 
-## Download Weekly DSS Application Activity from data.ct.gov
-df <- RSocrata::read.socrata("https://data.ct.gov/resource/ymej-83fh.csv")
+
+## Read in the DDS Applications Activity data from the "data/" folder
+df <- readr::read_csv(
+  file = "data/dds_data.csv", 
+  # ensure the "week_ending_date" column variable is read in as type "character"
+  col_types = readr::cols(
+    week_ending_date = readr::col_character()
+  )
+) %>% 
+  # convert the "week_ending_date" column variable to type "date" by extracting 
+  # the first 10 characters from the values in that column
+  dplyr::mutate(
+    week_ending_date = as.Date(
+      stringr::str_sub(
+        string = week_ending_date, 
+        start = 1, 
+        end = 10
+      )
+    )
+  )
+
+## If you want to quickly read in the latest data from Socrata without updating the
+## data in the "data/" directory, uncomment and run the line below
+# df <- RSocrata::read.socrata("https://data.ct.gov/resource/ymej-83fh.csv")
+
+# Take a peek at the data in the 'df' data frame
 dplyr::glimpse(df)
 
-df$month <- month(df$week_ending_date, label = TRUE)
-df <- df %>%
-  rename(cash = weekly_applications_received_cash_assistance,
-         medical = weekly_applications_received_medical_assistance,
-         snap = weekly_applications_received_snap,
-         all_apps = weekly_applications_received_all)
-## Wide to long
-df2 <- df %>%
-  pivot_longer(names_to = "Type",
-               values_to = "Applications",
-               cash:snap)
+
+# Data Prep ---------------------------------------------------------------
+
+# Overwrite the 'df' data frame by performing the following transformations...
+df <- df %>% 
+  # create a new column called "month" by parsing the month from the 
+  # "week_ending_date" column variable 
+  dplyr::mutate(
+    month = month(
+      week_ending_date, 
+      label = TRUE
+    )
+  ) %>% 
+  # rename the four columns included below along our new naming conventions 
+  dplyr::rename(
+    cash = weekly_applications_received_cash_assistance,
+    medical = weekly_applications_received_medical_assistance,
+    snap = weekly_applications_received_snap,
+    all_apps = weekly_applications_received_all
+  ) %>% 
+  # convert the data from *wide* to *long* format
+  tidyr::pivot_longer(
+    names_to = "Type",
+    values_to = "Applications",
+    cols = cash:snap
+  )
+
 
 df2 %>%
   ggplot(aes(week_ending_date, Applications,
