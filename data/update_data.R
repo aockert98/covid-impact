@@ -28,6 +28,18 @@ RSocrata::read.socrata("https://data.ct.gov/resource/r437-8xv7.csv") %>%
   )
 
 
+# COVID Stats by Town -----------------------------------------------------
+
+# Read in the most recent data from the Socrata API as a data frame
+RSocrata::read.socrata("https://data.ct.gov/resource/28fr-iqnx.csv") %>% 
+  # write the data frame out to the "data/covid_stats_by_town_data.csv"; write out any NA values
+  # in the data frame as empty strings
+  readr::write_csv(
+    path = here::here("data/covid_stats_by_town_data.csv"), 
+    na = ""
+  )
+
+
 # COVID Age ---------------------------------------------------------------
 
 # Read in the most recent data from the Socrata API as a data frame
