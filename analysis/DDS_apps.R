@@ -12,9 +12,11 @@ library(USAboundaries)
 library(USAboundariesData)
 
 
+# 1.0 - DSS Applications Activity -----------------------------------------------
+
 ## Read in the DDS Applications Activity data from the "data/" folder
-df <- readr::read_csv(
-  file = "data/dds_data.csv", 
+dss <- readr::read_csv(
+  file = "data/dss_data.csv", 
   # ensure the "week_ending_date" column variable is read in as type "character"
   col_types = readr::cols(
     week_ending_date = readr::col_character()
@@ -37,13 +39,10 @@ df <- readr::read_csv(
 # df <- RSocrata::read.socrata("https://data.ct.gov/resource/ymej-83fh.csv")
 
 # Take a peek at the data in the 'df' data frame
-dplyr::glimpse(df)
-
-
-# Data Prep ---------------------------------------------------------------
+dplyr::glimpse(dss)
 
 # Overwrite the 'df' data frame by performing the following transformations...
-df <- df %>% 
+dss <- dss %>% 
   # create a new column called "month" by parsing the month from the 
   # "week_ending_date" column variable 
   dplyr::mutate(
@@ -66,8 +65,8 @@ df <- df %>%
     cols = cash:snap
   )
 
-
-df %>%
+# Plot a line chart of the # of DSS applications rec'd by date & type
+dss %>%
   ggplot(aes(week_ending_date, Applications,
              color = Type)) +
   geom_line() +
@@ -162,6 +161,7 @@ ggplotly(p1)
 ## Covid Ages
 ## find census pop data for age group if possible
 
+# Read in data from "data/" folder
 covid_age <- readr::read_csv(
   file = here::here("data/covid_age_data.csv")
 )
