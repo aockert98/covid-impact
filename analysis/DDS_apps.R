@@ -188,6 +188,12 @@ covid_age <- covid_age %>%
     )
   )
 
+# Plot a line chart of the total cases by date and age group
 covid_age %>%
-  ggplot(aes(dateupdated,totalcases,color = agegroups)) +
-  geom_path()
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = dateupdated, 
+      y = totalcases, 
+      color = agegroups)
+    ) +
+  ggplot2::geom_path()
