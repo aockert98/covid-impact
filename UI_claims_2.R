@@ -172,14 +172,14 @@ cols <- colorRampPalette(colors = c("#f0c897","#c47055","#ad4534","#a22f24",
 ## Total claims per month per industry, by year
 df_industry3 <- df_industry2 %>%
   dplyr::group_by(month, year, industry) %>%
-  dplyr::mutate(industry_month = sum(claims))
+  dplyr::mutate(industry_month = sum(claims, na.rm=TRUE))
 df_industry3 <- df_industry3 %>%
   dplyr::group_by(year, industry) %>%
-  dplyr::mutate(industry_year = sum(claims))
+  dplyr::mutate(industry_year = sum(claims, na.rm=TRUE))
 
 
 ## Transform year from continuous to discrete (factor)
-df_industry3$year_fact <- cut(df_industry3$year, breaks = c(2005:2021), 
+df_industry3$year_fact <- cut(df_industry3$year, breaks = c(2004:2020), 
                               labels = c(2005:2020))
 ## Plot
 df_industry3 %>%
@@ -187,6 +187,23 @@ df_industry3 %>%
          year > 2018) %>%
   ggplot(aes(month_abbr, industry_month, fill = year_fact)) +
   geom_col(position = "dodge")
+
+## Industry percentage by year
+df_industry3 <- df_industry3 %>%
+  dplyr::mutate(industry_pct = ((industry_year/total_year) * 100))
+
+
+## Plot 
+df_industry3 %>%
+  filter(year > 2018) %>%
+  filter(industry %in% c("Construction","Wholesale.Trade",
+                         "Retail.Trade","Real.Estate","Manufacturing",
+                         "Self.Employed","Accommodation...Food.Services")) %>%
+  ggplot(aes(industry, industry_pct, fill = year_fact)) +
+  geom_col(position="dodge")
+
+
+## RENAMING INDUSTRIES
 
 
 
@@ -211,18 +228,21 @@ df_industry3$Industry <- stringr::str_to_title(df_industry3$Industry)
 ## Create datatable
 
 ## Makes filtering years easier
-df_industry4 <- df_industry3
-df_industry4$Year = as.character(df_industry4$Year)
+df_industry4 <- df_industry3 %>%
+  dplyr::select(Year = year,
+                Industry = industry, Total = industry_year,
+                Percent = industry_pct)
+df_industry4$Year = as.character(df_industry4$year)
 
 
 DT::datatable(df_industry4,
               rownames = FALSE,
               filter = "top",
-              colnames = c("Total" = "total_month"),
+              #colnames = c("Total" = "total_month"),
               extensions = "Buttons",
               options = list(dom = "Bfrtip",
                              buttons = c("csv","excel","pdf")))
 
 
 
-
+## Need help summarizing/ cleaning to just show one value per month etc
