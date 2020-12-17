@@ -67,14 +67,23 @@ dss <- dss %>%
 
 # Plot a line chart of the # of DSS applications rec'd by date & type
 dss %>%
-  ggplot(aes(week_ending_date, Applications,
-             color = Type)) +
-  geom_line() +
-  labs(title = "Weekly DDS Claims in Connecticut") +
-  theme_minimal() +
-  theme(axis.title.x = element_blank(),
-        plot.title = element_text(size = 16,
-                                  hjust = 0.5))
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = week_ending_date, 
+      y = Applications,
+      color = Type
+    )
+  ) +
+  ggplot2::geom_line() +
+  ggplot2::labs(title = "Weekly DDS Claims in Connecticut") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(
+    axis.title.x = ggplot2::element_blank(),
+    plot.title = ggplot2::element_text(
+      size = 16, 
+      hjust = 0.5
+    )
+  )
 
 ## Get CT county map data
 towns <- tigris::county_subdivisions(state = "Connecticut") %>%
@@ -162,9 +171,7 @@ ggplotly(p1)
 ## find census pop data for age group if possible
 
 # Read in data from "data/" folder
-covid_age <- readr::read_csv(
-  file = here::here("data/covid_age_data.csv")
-)
+covid_age <- readr::read_csv(file = here::here("data/covid_age_data.csv"))
 
 # See that we need to scrub these age groups to create consistency
 unique(covid_age$agegroups)
