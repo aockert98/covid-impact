@@ -60,6 +60,26 @@ ui_industry <- ui2 %>%
 ui_industry$month_abbr <- month(ui_industry$new_claim_date, label = TRUE)
 
 
+# Note: Plot Vision/Ideas -------------------------------------------------
+
+## How has COVID affected the number of UI claims in CT?
+## Which months of COVID have been particularly hard hit?
+
+ # 1. Bar plot comparing avg claims/month or claims/year pre 2020,
+  #vs claims in 2020
+ 
+ # 2. Line plot visualizing these trends
+
+
+## Which industries have been most impacted by COVID?
+
+  # The percentage of claims by industry...(ie, if Construction used to 
+  # only make up 5% of claims, and now makes up 20%, Construction industry
+  # disproportionately affected)
+  
+  # Conversely, could find that claims go up for an industry, but % of total claims stays the same,
+
+
 # Plots -------------------------------------------------------------------
 
 
@@ -97,16 +117,9 @@ ui_industry %>%
                  plot.title = element_text(hjust = 0.5),
                  plot.subtitle = element_text(hjust = 0.5))
 
-
-## Plot
-df_industry2 %>%
-  dplyr::filter(year == 2020) %>%
-  ggplot2::ggplot(aes(new_claim_date, log(claims), color = industry)) +
-  ggplot2::geom_path() +
-  theme(legend.position = "none")
-
 ## By percent of total claims
-df_industry2 %>%
+## UGLY-- just a test plot
+ui_industry %>%
   dplyr::filter(year == 2020) %>%
   dplyr::mutate(pct = claims/total) %>%
   ggplot2::ggplot(aes(new_claim_date, pct, fill = industry)) +
@@ -118,11 +131,12 @@ df_industry2 %>%
 ## interesting to see the next "darkest" row is 2008-09...
 
 ## logged cases works MUCH better
+## Create color palette
 cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
 
-p2 <- df_industry2 %>%
+p2 <- ui_industry %>%
   ggplot2::ggplot(aes(x = month_abbr, y = year)) +
-  ggplot2::geom_tile(aes(fill = log(Total))) +
+  ggplot2::geom_tile(aes(fill = log(total))) +
   scale_fill_gradientn(colors = cols_logged(6)) +
   labs(title = "COVID-19 and Connecticut's Economy", subtitle = "UI Claims by Month, 2005-2020",
        fill = "Total Claims (logged)") +
@@ -133,10 +147,6 @@ p2 <- df_industry2 %>%
         axis.text.x = element_text(angle = 45)) ; p2
 
 #doesnt work for some reason? ggplotly(p2)
-## create color palette
-cols <- colorRampPalette(colors = c("#f0c897","#c47055","#ad4534","#a22f24",
-                                    "#971913","#920e0b","#8c0303"))
-
 
 ## Total claims per month per industry, by year
 df_industry3 <- df_industry2 %>%
