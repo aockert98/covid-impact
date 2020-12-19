@@ -1,7 +1,7 @@
 ## Amelia Ockert
 ## First edit: Dec 9 2020
 
-## Last updated: Dec 18 2020
+## Last updated: Dec 19 2020
 
 ## Objective: Examine UI Claims by Industry dataset to explore how COVID-19 has affected
 # employment across different industries
@@ -13,8 +13,8 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 library(tidyr)
-library(ggrepel)
-library(RSocrata) # get data from ct.gov via API 
+library(stringr)
+#library(RSocrata) # get data from ct.gov via API 
 
 ## read in "UI Claims by Industry" as csv using 'read.socrata' function
 #df <- RSocrata::read.socrata("https://data.ct.gov/resource/r437-8xv7.csv")
@@ -25,6 +25,7 @@ library(RSocrata) # get data from ct.gov via API
 
 ## read in "UI Claims by Industry" csv from Data folder
 ui <- read.csv("data\\ui_claims_data.csv")
+ui <- read.csv(file.choose())
 dplyr::glimpse(ui)
 
 ## Remove time character that comes after the date
@@ -169,7 +170,14 @@ ui_industry %>%
   filter(industry == "construction",
          year > 2018) %>%
   ggplot(aes(month_abbr, industry_month, fill = year_fact)) +
-  geom_col(position = "dodge")
+  geom_col(position = "dodge") +
+  labs(title = "Number of Construction UI Claims per Month",
+       subtitle = "2019 vs. 2020",
+       fill = "") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5),
+        axis.title = element_blank())
 
 
 
@@ -196,14 +204,24 @@ ui_industry %>%
        fill = "Year",
        y = "Industry") +
   #change x axis labels -- is there a function to do this rather than manual?
-  scale_x_discrete(labels = c("Construction","Wholesale","Retail",
-                              "Real Estate","Manuf.","Self-Employed")) +
+  scale_x_discrete(labels = c("Construction","Manuf.","Real Estate",
+                              "Retail","Self-Employed.","Wholesale")) +
   geom_text(aes(label = industry_year), size = 3) + ## need to move this over
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45,
                                    size = 8),
         plot.title = element_text(hjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5))
+
+## Plot of Trends in Total Claims / % of total claims for a given industry
+ui_industry %>%
+  filter(industry == "construction") %>%
+  ggplot(aes(new_claim_date, log(total))) +
+  geom_line()
+ui_industry %>%
+  filter(industry == "construction") %>%
+  ggplot() +
+  geom_line(aes(year, industry_pct)) 
 
 
 ## RENAMING INDUSTRIES

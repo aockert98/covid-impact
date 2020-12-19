@@ -37,11 +37,11 @@ server <- function(input, output) {
     paste("I picked", input$year)
   })
   output$UI_table <- DT::renderDT({
-    df_industry4 %>%
+    ui_industry %>%
       filter(Industry == input$industry)
   })
   output$plot1 <- renderPlot({
-    df_industry2 %>%
+    ui_industry %>%
       dplyr::filter(year == input$year) %>%
       ggplot2::ggplot(aes(new_claim_date, claims, color = industry)) +
       ggplot2::geom_path() +
