@@ -214,36 +214,30 @@ ui_industry$name <- stringr::str_replace_all(ui_industry$industry, "_"," ")
 ui_industry$name <- stringr::str_to_title(ui_industry$name) #converts first letter of each word to uppercase
 
 
+# Interactive Datatable using DT package ----------------------------------
+## BIGGEST THING-- FIND WAY TO SUMMARIZE 
+## multiple values are still being displayed for each year
 
-## INTERACTIVE DATATABLE ##
-## DT Package creates interactive tables
 library(DT)
 
-## Clean up df_industry2 for datatable
-df_industry3 <- df_industry2 %>%
+## Clean up for datatable
+ui_industry2 <- ui_industry %>%
   select(Year = year, Month = month_abbr, 
-         Industry = industry, Claims = claims)
-df_industry3 <- df_industry3 %>%
+         Industry = industry, Claims = claims) %>%
   dplyr::group_by(Month, Year, Industry) %>%
-  dplyr::summarize(total_month = sum(Claims))
+  summarize(Month_Total = sum(Claims))
 
-## Clean up Industry names-- remove the _ and capitalize first letters of the words
-library(stringr)
 
-df_industry3$Industry <- stringr::str_replace(df_industry3$Industry, "_", " ")
-df_industry3$Industry <- stringr::str_to_title(df_industry3$Industry)
-
-## Create datatable
-
-## Makes filtering years easier
-df_industry4 <- df_industry3 %>%
+## For % Industry table
+ui_industry3 <- ui_industry %>%
   dplyr::select(Year = year,
                 Industry = industry, Total = industry_year,
                 Percent = industry_pct)
-df_industry4$Year = as.character(df_industry4$year)
+## Filtering is easier when year is a character
+ui_industry3$Year = as.character(ui_industry3$Year)
 
 
-DT::datatable(df_industry4,
+DT::datatable(ui_industry3,
               rownames = FALSE,
               filter = "top",
               #colnames = c("Total" = "total_month"),
