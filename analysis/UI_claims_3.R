@@ -148,41 +148,70 @@ p2 <- ui_industry %>%
 
 #doesnt work for some reason? ggplotly(p2)
 
-## Total claims per month per industry, by year
-df_industry3 <- df_industry2 %>%
-  dplyr::group_by(month, year, industry) %>%
-  dplyr::mutate(industry_month = sum(claims, na.rm=TRUE))
-df_industry3 <- df_industry3 %>%
-  dplyr::group_by(year, industry) %>%
-  dplyr::mutate(industry_year = sum(claims, na.rm=TRUE))
 
+# Data Transformation / Plots on Industry-level ---------------------------
+
+## Find total claims/month for each industry (by year)
+ui_industry <- ui_industry %>%
+  dplyr::group_by(month, year, industry) %>%
+  dplyr::mutate(industry_month = sum(claims, na.rm=TRUE)) %>%
+  ungroup() %>%
+  dplyr::group_by(year, industry) %>%
+  dplyr::mutate(
+    industry_year = sum(claims, na.rm=TRUE))
+  
 
 ## Transform year from continuous to discrete (factor)
-df_industry3$year_fact <- cut(df_industry3$year, breaks = c(2004:2020), 
+ui_industry$year_fact <- cut(ui_industry$year, breaks = c(2004:2020), 
                               labels = c(2005:2020))
-## Plot
-df_industry3 %>%
-  filter(industry == "Construction",
+## Barplot comparing number of claims/month 2019 v. 2020 for Construction industry 
+ui_industry %>%
+  filter(industry == "construction",
          year > 2018) %>%
   ggplot(aes(month_abbr, industry_month, fill = year_fact)) +
   geom_col(position = "dodge")
 
-## Industry percentage by year
-df_industry3 <- df_industry3 %>%
-  dplyr::mutate(industry_pct = ((industry_year/total_year) * 100))
 
 
-## Plot 
-df_industry3 %>%
+# Data Transformation/Plotting on % Industry level ------------------------
+
+
+## Find each industry's percentage of total claims by year
+ui_industry <- ui_industry %>%
+  dplyr::mutate(
+    industry_pct = ((industry_year/total_year) * 100))
+
+
+## Plot Comparing percentage of claims for 5 industries, 2019 v 2020
+## This is definitely not the best way to visualize this info--just a prelim. plot
+ui_industry %>%
   filter(year > 2018) %>%
-  filter(industry %in% c("Construction","Wholesale.Trade",
-                         "Retail.Trade","Real.Estate","Manufacturing",
-                         "Self.Employed","Accommodation...Food.Services")) %>%
+  filter(industry %in% c("construction","wholesale_trade",
+                         "retail_trade","real_estate","manufacturing",
+                         "self_employed")) %>%
   ggplot(aes(industry, industry_pct, fill = year_fact)) +
-  geom_col(position="dodge")
+  geom_col(position="dodge") +
+  labs(title = "Which Industries have been most Affected by COVID?",
+       subtitle = "Industry Percentage of Total Claims 2019 vs. 2020",
+       fill = "Year",
+       y = "Industry") +
+  #change x axis labels -- is there a function to do this rather than manual?
+  scale_x_discrete(labels = c("Construction","Wholesale","Retail",
+                              "Real Estate","Manuf.","Self-Employed")) +
+  geom_text(aes(label = industry_year), size = 3) + ## need to move this over
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45,
+                                   size = 8),
+        plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
 
 
 ## RENAMING INDUSTRIES
+library(stringr)
+
+# replace _ with a space 
+ui_industry$name <- stringr::str_replace_all(ui_industry$industry, "_"," ")
+ui_industry$name <- stringr::str_to_title(ui_industry$name) #converts first letter of each word to uppercase
 
 
 
