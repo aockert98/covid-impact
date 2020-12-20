@@ -24,7 +24,7 @@ library(stringr)
 # Data Loading and Cleaning -----------------------------------------------
 
 ## read in "UI Claims by Industry" csv from Data folder
-ui <- read.csv("data\\ui_claims_data.csv")
+ui <- read.csv("data/ui_claims_data.csv")
 ui <- read.csv(file.choose())
 dplyr::glimpse(ui)
 
@@ -251,14 +251,28 @@ ui_industry %>%
   
 
 # Dumbbell Chart ----------------------------------------------------------
+## VISION
+# Compare average # claims pre 2020 to # claims in 2020
+# problem-- need to eliminate december (bc not yet reported for 2020)
+
 
 ## Find average number of claims per industry from 2005-2019
-##ui_industry <- ui_industry %>%
-  #dplyr::filter(year < 2020) %>%
-  #dplyr::group_by(industry) %>%
-  #mutate(avg_05_19 = mean())
+ui_industry2 <- ui_industry %>%
+  dplyr::filter(year < 2020) %>%
+  dplyr::group_by(industry) %>%
+  mutate(avg_05_19 = round(mean(industry_year),0))
 
+ui_industry_2020 <- ui_industry %>%
+  filter(year == 2020) %>%
+  mutate(avg_05_19 = industry_year)
 
+ui_comb <- rbind(ui_industry2, ui_industry_2020)
+
+ui_comb %>%
+  filter(year %in% c(2005,2020)) %>%
+  filter(industry == "construction") %>%
+  ggplot(aes(x=avg_05_19)) +
+  geom_bar()
 
 ## RENAMING INDUSTRIES
 library(stringr)
@@ -298,3 +312,6 @@ DT::datatable(ui_industry3,
               extensions = "Buttons",
               options = list(dom = "Bfrtip",
                              buttons = c("csv","excel","pdf")))
+
+install.packages("shinyWidgets")
+library(shinyWidgets)

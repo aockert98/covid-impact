@@ -4,6 +4,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(lubridate)
+library(readr)
 
 options(tigris_use_cache = TRUE)
 library(tigris)
@@ -84,6 +85,16 @@ dss %>%
       hjust = 0.5
     )
   )
+
+
+dss %>%
+  filter(Type == "snap") %>%
+  ggplot(aes(x = week_ending_date,
+             y = Applications)) +
+  geom_col()
+
+
+# CT Town Map -------------------------------------------------------------
 
 ## Get CT county map data
 towns <- tigris::county_subdivisions(state = "Connecticut") %>%
