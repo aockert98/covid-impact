@@ -187,7 +187,7 @@ ui_industry %>%
 ## Find each industry's percentage of total claims by year
 ui_industry <- ui_industry %>%
   dplyr::mutate(
-    industry_pct = ((industry_year/total_year) * 100))
+    industry_pct = round(((industry_year/total_year) * 100), 1))
 
 
 ## Plot Comparing percentage of claims for 5 industries, 2019 v 2020
@@ -222,6 +222,42 @@ ui_industry %>%
   filter(industry == "construction") %>%
   ggplot() +
   geom_line(aes(year, industry_pct)) 
+
+## Pie chart of % Total Claims by industry
+ui_industry %>%
+  filter(year == 2020,
+         industry_pct > 4) %>%
+  ggplot(aes(industry, industry_pct)) +
+  geom_bar(stat = "identity", aes(fill = industry)) +
+  coord_polar("x", start = pi) +
+  theme(legend.position = "none")
+
+## Facet grid for percent trends by industry
+ui_industry %>%
+  ggplot(aes(year, industry_pct)) +
+  geom_line() +
+  facet_wrap(~name)
+
+## Facet grid total claims by industry
+ui_industry %>%
+  #filter(industry != "self_employed") %>%
+  ggplot(aes(year, industry_year)) +
+  geom_line() +
+  facet_wrap(~name) +
+  labs(title = "Total UI Claims by Industry",
+       y = "Claims per year") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank())
+  
+
+# Dumbbell Chart ----------------------------------------------------------
+
+## Find average number of claims per industry from 2005-2019
+##ui_industry <- ui_industry %>%
+  #dplyr::filter(year < 2020) %>%
+  #dplyr::group_by(industry) %>%
+  #mutate(avg_05_19 = mean())
+
 
 
 ## RENAMING INDUSTRIES
