@@ -16,15 +16,22 @@ ui <- fluidPage(
     sidebarPanel(
       sliderInput("year","Select Year", min = 2005, max = 2020,
                   value = 2020, sep = ""),
+      ## different selecting choices--still playing around with these
       selectInput("industry","Pick Industry",
                   choices = c("construction", "manufacturing",
                               "information",
                               multiple = TRUE,
                               names(ui_industry$industry))),
-      multiInput("industry2", "Ind?",
+      multiInput("industry2", "Select Industries:",
                  choices = c("construction","manufacturing",
                              "information"),
                  selected = "construction"),
+      awesomeCheckboxGroup(
+        inputId = "industry3",
+        label = "Select Industries:", 
+        choices = c("construction", "manufacturing", "information"),
+        selected = "construction"
+      ),
       textOutput("choice")),
       
     mainPanel(tabsetPanel(
@@ -51,7 +58,7 @@ server <- function(input, output) {
   output$plot1 <- renderPlot({
     ui_industry %>%
       dplyr::filter(year == input$year,
-                    industry == input$industry2) %>%
+                    industry == input$industry3) %>%
       ggplot2::ggplot(aes(new_claim_date, claims, color = industry)) +
       ggplot2::geom_path() +
       labs(title = "COVID-19 and Connecticut's Economy", subtitle = "UI Claims by Month, 2005-2020",
