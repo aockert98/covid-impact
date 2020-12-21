@@ -345,7 +345,9 @@ ui_dumb3$industry <- str_to_title(ui_dumb3$industry)
 ui_dumb3 %>%
   #filter(industry != "Self Employed") %>%
   ggplot(aes(x = year2015/1000, xend = year2020/1000, y = industry, group = industry)) +
-  geom_dumbbell() +
+  geom_dumbbell(color = "darkgray",
+                colour_x = "darkgray",
+                colour_xend="black") +
   labs(x = "UI Claims Filed",
        y = "Industry",
        title = "The Economic Impact of the Coronavirus Pandemic in Connecticut",
