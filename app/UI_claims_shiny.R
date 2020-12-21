@@ -33,6 +33,10 @@ ui <- fluidPage(
         selected = "construction"
       ),
       textOutput("choice")),
+    # Date range input
+    dateRangeInput("dates", "Date Range:",
+                   start = "2005-01-01",
+                   end   = "2020-12-20"),
       
     mainPanel(tabsetPanel(
               tabPanel("table",DT::DTOutput("UI_table")),

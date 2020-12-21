@@ -41,4 +41,7 @@ as.integer(cui2$contClaims)
 cui2$Total <- stringr::str_remove_all(cui2$Total, ",")
 as.integer(cui2$Total)
 
+## Merge data with Initial claims (coming soon)
+
+## Town data
 

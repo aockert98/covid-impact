@@ -24,7 +24,7 @@ library(stringr)
 # Data Loading and Cleaning -----------------------------------------------
 
 ## read in "UI Claims by Industry" csv from Data folder
-ui <- read.csv("data/ui_claims_data.csv")
+ui <- read.csv("Data/ui_claims_data.csv")
 ui <- read.csv(file.choose())
 dplyr::glimpse(ui)
 
@@ -165,6 +165,8 @@ ui_industry <- ui_industry %>%
 ## Transform year from continuous to discrete (factor)
 ui_industry$year_fact <- cut(ui_industry$year, breaks = c(2004:2020), 
                               labels = c(2005:2020))
+ui_dumb <- ui_industry #saving current data for dumbell plot below
+
 ## Barplot comparing number of claims/month 2019 v. 2020 for Construction industry 
 ui_industry %>%
   filter(industry == "construction",
@@ -315,3 +317,40 @@ DT::datatable(ui_industry3,
 
 install.packages("shinyWidgets")
 library(shinyWidgets)
+
+
+
+# Dumbbell Data Trans + Plot ----------------------------------------------
+glimpse(ui_dumb)
+
+ui_dumb2 <- ui_dumb %>%
+  select(year, industry, industry_year)
+
+## add characters to beginning of year
+ui_dumb2$year <- paste0("year", ui_dumb2$year)
+
+ui_dumb3 <- ui_dumb2 %>%
+  pivot_wider(names_from = "year",
+              values_from = "industry_year",
+              values_fn = mean) # need to summarize bc each year listed multiple times
+# Package for dumbbell p
+#install.packages("ggalt")
+library(ggalt)
+
+# Clean up industry names
+ui_dumb3$industry <- str_replace_all(ui_dumb3$industry, "_", " ")
+ui_dumb3$industry <- str_to_title(ui_dumb3$industry)
+
+
+ui_dumb3 %>%
+  #filter(industry != "Self Employed") %>%
+  ggplot(aes(x = year2015/1000, xend = year2020/1000, y = industry, group = industry)) +
+  geom_dumbbell() +
+  labs(x = "UI Claims Filed",
+       y = "Industry",
+       title = "The Economic Impact of the Coronavirus Pandemic in Connecticut",
+       subtitle = "Comparing Unemployment Insurance Claims Filed in 2013 vs. 2020", 
+       caption = "Source: (fill in)") +
+  theme_minimal() +
+  theme(plot.margin = unit(c(1.5,3,1,0), "cm"))
+
