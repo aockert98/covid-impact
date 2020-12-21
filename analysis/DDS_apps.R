@@ -254,6 +254,9 @@ covid_age_dr <- covid_age %>%
 ## Broaden Age Groups
 # still to do
 
+## Census data to find %s
+td <- read.csv(file.choose())
+
 covid_age_dr %>%
   ggplot(aes(dateupdated, deathrate, color = agegroups)) +
   geom_line() +
