@@ -15,7 +15,7 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       sliderInput("year","Select Year", min = 2005, max = 2020,
-                  value = 2020, sep = ""),
+                  value = 2020, sep = ""), # sep takes the comma out
       ## different selecting choices--still playing around with these
       selectInput("industry","Pick Industry",
                   choices = c("construction", "manufacturing",
@@ -36,7 +36,8 @@ ui <- fluidPage(
       
     mainPanel(tabsetPanel(
               tabPanel("table",DT::DTOutput("UI_table")),
-              tabPanel("plot", plotOutput("plot1"))))))
+              tabPanel("plot", plotOutput("plot1")),
+              tabPanel("Other plot", plotOutput("plot2"))))))
               
   
   #sliderInput("year","Select Year", min = 2005, max = 2020,
@@ -68,6 +69,14 @@ server <- function(input, output) {
             plot.title = element_text(hjust = 0.5, size = 20, face = "bold"),
             plot.subtitle = element_text(hjust = 0.5, size = 16),
             axis.text.x = element_text(angle = 45))
+  })
+  output$plot2 <- renderPlot({
+    ui_industry %>%
+      dplyr::filter(year > input$year,
+                    industry == input$industry3) %>%
+      ggplot(aes(new_claim_date, claims, color = industry)) + 
+      geom_path() +
+      theme_light()
   })
   
 }

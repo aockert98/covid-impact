@@ -76,7 +76,9 @@ dss %>%
     )
   ) +
   ggplot2::geom_line() +
-  ggplot2::labs(title = "Weekly DDS Claims in Connecticut") +
+  geom_line(aes(x=week_ending_date,
+                y = all_apps), inherit.aes=FALSE, color = "darkgray") +
+  ggplot2::labs(title = "Weekly DSS Claims in Connecticut") +
   ggplot2::theme_minimal() +
   ggplot2::theme(
     axis.title.x = ggplot2::element_blank(),
@@ -119,16 +121,22 @@ ggplot() +
 covid_town <- RSocrata::read.socrata("https://data.ct.gov/resource/28fr-iqnx.csv")
 dplyr::glimpse(covid_town)
 
+## Read in covid town data from data folder
+covid_town <- read.csv(file.choose())
+
+## Remove time character that comes after the date
+covid_town$lastupdatedate <- sub("T.*", "", covid_town$lastupdatedate)
+## Convert date character string to date format
+covid_town$lastupdatedate <- lubridate::ymd(covid_town$lastupdatedate)
+class(covid_town$lastupdatedate) #check that it worked
+
+
 ## Transform
 town_cases <- covid_town %>%
   rename(date = lastupdatedate,
          totalcases = towntotalcases,
          per100k = towncaserate)
 
-town_cases %>%
-  ggplot(aes(date, per100k, color = town)) +
-  geom_path() +
-  theme(legend.position = "none")
 
 ## Merge town map data with town covid data
 towns <- towns %>%
@@ -180,7 +188,8 @@ ggplotly(p1)
 
 ## Covid Ages
 ## find census pop data for age group if possible
-
+install.packages("here")
+library(here)
 # Read in data from "data/" folder
 covid_age <- readr::read_csv(file = here::here("data/covid_age_data.csv"))
 
@@ -215,3 +224,42 @@ covid_age %>%
       color = agegroups)
     ) +
   ggplot2::geom_path()
+
+# Bar plot of total cases by age group
+covid_age %>%
+  filter(dateupdated == "2020-12-15") %>%
+  ggplot2:: ggplot(
+    aes(
+      x = agegroups,
+      y = totalcases
+    )
+  ) +
+  geom_col()
+
+covid_age %>%
+  #filter(agegroups == "20-29") %>%
+  ggplot() +
+ # geom_line(aes(dateupdated, totalcases)) +
+  geom_line(aes(dateupdated, totaldeaths, color = agegroups)) +
+  labs(y = "Total Deaths",
+       title = "COVID-19 Deaths in Connecticut",
+       color = "Age Group") +
+  theme_minimal()
+
+## Death rate-- deaths per cases for each age group
+covid_age_dr <- covid_age %>%
+  group_by(agegroups, dateupdated) %>%
+  mutate(deathrate = totaldeaths/totalcases)
+
+## Broaden Age Groups
+# still to do
+
+covid_age_dr %>%
+  ggplot(aes(dateupdated, deathrate, color = agegroups)) +
+  geom_line() +
+  labs(y = "Death Rate",
+       title = "Covid Deathrate across Age Groups",
+       color = "Age Group") +
+  theme_minimal() +
+  theme(axis.title.x = element_blank(),
+        plot.title = element_text(hjust = 0.5))
