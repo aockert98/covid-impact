@@ -15,57 +15,26 @@ library(lubridate)
 library(tidyr)
 library(ggrepel)
 library(plotly)
-library(RSocrata) # get data from ct.gov via API 
-
-## read in "UI Claims by Industry" as csv using 'read.socrata' function
-#df <- RSocrata::read.socrata("https://data.ct.gov/resource/r437-8xv7.csv")
-#dplyr::glimpse(df)
 
 ## read in "UI Claims by Industry" csv from Data folder
-df <- read.csv("Data\\UI_Claims_by_Industry.csv")
-library(readr)
-#tsv format
-#df1 <- read_csv("Data\\UI_Claims_by_Industry.csv")
+df <- read.csv("data/economic/ui_claims_data.csv") %>% 
+  dplyr::mutate(
+    new_claim_date = as.Date(stringr::str_sub(new_claim_date, start = 1, end = 10)), 
+    year = lubridate::year(new_claim_date), 
+    month = lubridate::month(new_claim_date)
+  ) %>% 
+  dplyr::group_by(year, month) %>% 
+  dplyr::mutate(total_month = sum(total)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::group_by(year) %>%
+  dplyr::mutate(total_year = sum(total)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(
+    month2 = format(new_claim_date, "%m"), 
+    month3 = as.factor(month2)
+  )
 
 dplyr::glimpse(df)
-
-## Remove time character that comes after the date
-df$New.Claim.Date <- sub(" .*", "", df$New.Claim.Date)
-## Convert date character string to date format
-df$New.Claim.Date <- lubridate::mdy(df$New.Claim.Date)
-class(df$New.Claim.Date) #check that it worked
-
-## extract year and month
-df$year <- as.numeric(format(df$New.Claim.Date, "%Y"))
-df$month <- as.numeric(format(df$New.Claim.Date, "%m"))
-
-## from API version
-## Create year and month columns using lubridate format function
-##df1$year <- as.numeric(format(df1$`New Claim Date`, "%Y"))
-##df$month <- as.numeric(format(df$New.Claim.Date, "%m"))
-
-
-
-## Find total number of claims by month (for each year)
-df2 <- df %>%
-  dplyr::group_by(year, month) %>%
-  dplyr::mutate(total_month = sum(Total))
-
-## Find total number of claims by year
-df2 <- df2 %>%
-  dplyr::group_by(year) %>%
-  dplyr::mutate(total_year = sum(Total))
-
-df2$month2 <- as.character(format(df$new_claim_date, "%m"))
-
-
-class(df2$month2)
-df2$month3 <- as.factor(df2$month2)  
-class(df2$month3)
-
-#df_industry2 <- df_industry2 %>%
- # mutate(month_name = case_when(month == 1 ~ "January"))
-
 
 
 ## DATA TRANSFORMATION
