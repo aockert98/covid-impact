@@ -81,29 +81,6 @@ ui_industry %>%
   ggplot2::geom_path()
 
 
-## Heatmap 
-## color scale needs work! will be tricky
-## interesting to see the next "darkest" row is 2008-09...
-
-## logged cases works MUCH better
-## Create color palette
-cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
-
-p2 <- ui_industry %>%
-  ggplot2::ggplot(aes(x = month_abbr, y = year)) +
-  ggplot2::geom_tile(aes(fill = log(total))) +
-  scale_fill_gradientn(colors = cols_logged(6)) +
-  labs(title = "COVID-19 and Connecticut's Economy", subtitle = "UI Claims by Month, 2005-2020",
-       fill = "Total Claims (logged)") +
-  theme_minimal() +
-  theme(axis.title = element_blank(),
-        plot.title = element_text(hjust = 0.5, size = 20, face = "bold"),
-        plot.subtitle = element_text(hjust = 0.5, size = 16),
-        axis.text.x = element_text(angle = 45)) ; p2
-
-#doesnt work for some reason? ggplotly(p2)
-
-
 # Data Transformation / Plots on Industry-level ---------------------------
 
 ## Find total claims/month for each industry (by year)
@@ -113,29 +90,15 @@ ui_industry <- ui_industry %>%
   ungroup() %>%
   dplyr::group_by(year, industry) %>%
   dplyr::mutate(
-    industry_year = sum(claims, na.rm=TRUE))
+    industry_year = sum(claims, na.rm=TRUE)
+  ) %>% 
+  dplyr::ungroup()
   
 
 ## Transform year from continuous to discrete (factor)
 ui_industry$year_fact <- cut(ui_industry$year, breaks = c(2004:2020), 
                               labels = c(2005:2020))
 ui_dumb <- ui_industry #saving current data for dumbell plot below
-
-## Barplot comparing number of claims/month 2019 v. 2020 for Construction industry 
-ui_industry %>%
-  filter(industry == "construction",
-         year > 2018) %>%
-  ggplot(aes(month_abbr, industry_month, fill = year_fact)) +
-  geom_col(position = "dodge") +
-  labs(title = "Number of Construction UI Claims per Month",
-       subtitle = "2019 vs. 2020",
-       fill = "") +
-  theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5),
-        axis.title = element_blank())
-
-
 
 # Data Transformation/Plotting on % Industry level ------------------------
 
@@ -188,6 +151,10 @@ ui_industry %>%
   coord_polar("x", start = pi) +
   theme(legend.position = "none")
 
+# replace _ with a space 
+ui_industry$name <- stringr::str_replace_all(ui_industry$industry, "_"," ")
+ui_industry$name <- stringr::str_to_title(ui_industry$name) #converts first letter of each word to uppercase
+
 ## Facet grid for percent trends by industry
 ui_industry %>%
   ggplot(aes(year, industry_pct)) +
@@ -199,11 +166,11 @@ ui_industry %>%
   #filter(industry != "self_employed") %>%
   ggplot(aes(year, industry_year)) +
   geom_line() +
-  facet_wrap(~name) +
+  facet_wrap(~name, scales = "free_y") +
   labs(title = "Total UI Claims by Industry",
        y = "Claims per year") +
   theme_minimal() +
-  theme(axis.text.x = element_blank())
+  theme(axis.text.x = element_blank()) 
   
 
 # Dumbbell Chart ----------------------------------------------------------
@@ -230,13 +197,6 @@ ui_comb %>%
   ggplot(aes(x=avg_05_19)) +
   geom_bar()
 
-## RENAMING INDUSTRIES
-library(stringr)
-
-# replace _ with a space 
-ui_industry$name <- stringr::str_replace_all(ui_industry$industry, "_"," ")
-ui_industry$name <- stringr::str_to_title(ui_industry$name) #converts first letter of each word to uppercase
-
 
 # Interactive Datatable using DT package ----------------------------------
 ## BIGGEST THING-- FIND WAY TO SUMMARIZE 
@@ -249,7 +209,10 @@ ui_industry2 <- ui_industry %>%
   select(Year = year, Month = month_abbr, 
          Industry = industry, Claims = claims) %>%
   dplyr::group_by(Month, Year, Industry) %>%
-  summarize(Month_Total = sum(Claims))
+  summarize(
+    Month_Total = sum(Claims), 
+    .groups = "drop"
+  )
 
 
 ## For % Industry table
@@ -261,17 +224,20 @@ ui_industry3 <- ui_industry %>%
 ui_industry3$Year = as.character(ui_industry3$Year)
 
 
-DT::datatable(ui_industry3,
-              rownames = FALSE,
-              filter = "top",
-              #colnames = c("Total" = "total_month"),
-              extensions = "Buttons",
-              options = list(dom = "Bfrtip",
-                             buttons = c("csv","excel","pdf")))
-
-install.packages("shinyWidgets")
-library(shinyWidgets)
-
+ui_industry3 %>% 
+  dplyr::group_by(Year, Industry) %>% 
+  dplyr::summarise(
+    Total = mean(Total), 
+    Percent = mean(Percent), 
+    .groups = "drop"
+  ) %>% 
+  DT::datatable(
+    rownames = FALSE,
+    filter = "top",
+    #colnames = c("Total" = "total_month"),
+    extensions = "Buttons",
+    options = list(dom = "Bfrtip",
+                   buttons = c("csv","excel","pdf")))
 
 
 # Dumbbell Data Trans + Plot ----------------------------------------------
@@ -281,7 +247,7 @@ ui_dumb2 <- ui_dumb %>%
   select(year, industry, industry_year)
 
 ## add characters to beginning of year
-ui_dumb2$year <- paste0("year", ui_dumb2$year)
+# ui_dumb2$year <- paste0("year", ui_dumb2$year)
 
 ui_dumb3 <- ui_dumb2 %>%
   pivot_wider(names_from = "year",
@@ -298,8 +264,8 @@ ui_dumb3$industry <- str_to_title(ui_dumb3$industry)
 
 ui_dumb3 %>%
   #filter(industry != "Self Employed") %>%
-  ggplot2::ggplot(aes(x = year2015/1000, xend = year2020/1000, y = industry, group = industry)) +
-  ggplot2::geom_dumbbell(color = "darkgray",
+  ggplot2::ggplot(aes(x = `2015`/1000, xend = `2020`/1000, y = industry, group = industry)) +
+  ggalt::geom_dumbbell(color = "darkgray",
                 colour_x = "darkgray",
                 colour_xend="black") +
   ggplot2::labs(x = "UI Claims Filed",
