@@ -15,6 +15,8 @@ library(lubridate)
 library(tidyr)
 library(ggrepel)
 library(plotly)
+library(stringr)
+library(DT)
 
 ## read in "UI Claims by Industry" csv from Data folder
 df <- read.csv("data/economic/ui_claims_data.csv") %>% 
@@ -65,78 +67,79 @@ df_industry %>%
   theme(legend.position = "none")
 
 ## Total claims per month per industry, by year
-df_industry3 <- df_industry2 %>%
+df_industry_totals <- df_industry %>%
   dplyr::group_by(month, year, industry) %>%
-  dplyr::mutate(industry_month = sum(claims, na.rm=TRUE))
-df_industry3 <- df_industry3 %>%
+  dplyr::mutate(industry_month = sum(claims, na.rm=TRUE)) %>% 
+  dplyr::ungroup() %>% 
   dplyr::group_by(year, industry) %>%
-  dplyr::mutate(industry_year = sum(claims, na.rm=TRUE))
+  dplyr::mutate(industry_year = sum(claims, na.rm=TRUE)) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(year_fact = cut(
+    year, 
+    breaks = c(2004:2020), 
+    labels = c(2005:2020)
+  ))
 
-
-## Transform year from continuous to discrete (factor)
-df_industry3$year_fact <- cut(df_industry3$year, breaks = c(2004:2020), 
-                              labels = c(2005:2020))
 ## Plot
-df_industry3 %>%
-  filter(industry == "Construction",
+df_industry_totals %>%
+  filter(industry == "construction",
          year > 2018) %>%
   ggplot(aes(month_abbr, industry_month, fill = year_fact)) +
   geom_col(position = "dodge")
 
 ## Industry percentage by year
-df_industry3 <- df_industry3 %>%
+df_industry_totals <- df_industry_totals %>%
   dplyr::mutate(industry_pct = ((industry_year/total_year) * 100))
 
 
 ## Plot 
-df_industry3 %>%
+df_industry_totals %>%
   filter(year > 2018) %>%
-  filter(industry %in% c("Construction","Wholesale.Trade",
-                         "Retail.Trade","Real.Estate","Manufacturing",
-                         "Self.Employed","Accommodation...Food.Services")) %>%
+  filter(industry %in% c("construction","wholesale_trade",
+                         "retail_trade","real_estate","manufacturing",
+                         "self_employed","accommodation_food_services")) %>%
   ggplot(aes(industry, industry_pct, fill = year_fact)) +
   geom_col(position="dodge")
 
 
 ## RENAMING INDUSTRIES
-
-
-
-## INTERACTIVE DATATABLE ##
-## DT Package creates interactive tables
-library(DT)
-
-## Clean up df_industry2 for datatable
-df_industry3 <- df_industry2 %>%
-  select(Year = year, Month = month_abbr, 
-         Industry = industry, Claims = claims)
-df_industry3 <- df_industry3 %>%
+## Clean up df_industry_totals for datatable
+df_industry_for_dt <- df_industry_totals %>%
+  select(
+    Year = year, 
+    Month = month_abbr, 
+    Industry = industry, 
+    Claims = claims
+  ) %>%
   dplyr::group_by(Month, Year, Industry) %>%
-  dplyr::summarize(total_month = sum(Claims))
-
-## Clean up Industry names-- remove the _ and capitalize first letters of the words
-library(stringr)
-
-df_industry3$Industry <- stringr::str_replace(df_industry3$Industry, "_", " ")
-df_industry3$Industry <- stringr::str_to_title(df_industry3$Industry)
+  dplyr::summarize(
+    total_month = sum(Claims), 
+    .groups = "drop"
+  ) %>% 
+  # clean up Industry names-- remove the _ and capitalize first letters of the words
+  dplyr::mutate(
+    Industry = stringr::str_replace(Industry, "_", " "), 
+    Industry = stringr::str_to_title(Industry)
+  )
 
 ## Create datatable
-
-## Makes filtering years easier
-df_industry4 <- df_industry3 %>%
-  dplyr::select(Year = year,
-                Industry = industry, Total = industry_year,
-                Percent = industry_pct)
-df_industry4$Year = as.character(df_industry4$year)
-
-
-DT::datatable(df_industry4,
-              rownames = FALSE,
-              filter = "top",
-              #colnames = c("Total" = "total_month"),
-              extensions = "Buttons",
-              options = list(dom = "Bfrtip",
-                             buttons = c("csv","excel","pdf")))
+df_industry_for_dt %>% 
+  dplyr::select(
+    Year,
+    Industry, 
+    Total = industry_year,
+    Percent = industry_pct
+  ) %>% 
+  dplyr::mutate(Year = as.character(Year)) %>% 
+  DT::datatable(
+    rownames = FALSE,
+    filter = "top",
+    #colnames = c("Total" = "total_month"),
+    extensions = "Buttons",
+    options = list(
+      dom = "Bfrtip",
+      buttons = c("csv","excel","pdf")
+    ))
 
 
 
