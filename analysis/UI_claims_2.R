@@ -40,55 +40,25 @@ dplyr::glimpse(df)
 ## DATA TRANSFORMATION
 
 df_industry <- df %>%
-  dplyr::select(New.Claim.Date, month, year, Total, total_month,total_year,
-                tidyr::everything())
-
-
-df_industry2 <- df_industry %>%
- tidyr::pivot_longer(cols = Agric...Forestry..Fishing...Hunting:Other.Unknown,
-                     names_to = "industry", values_to = "claims")
-
-## Naming Months
-dplyr::glimpse(df_industry2)
-df_industry2$month_abbr <- month(df_industry2$New.Claim.Date, label = TRUE)
-
-## test plot
-df2 %>%
-  ggplot2::ggplot(ggplot2::aes(New.Claim.Date, Total)) +
-  ggplot2::geom_point()
-
-## Plot 1: Interactive barplot 2019 and 2020
-p1 <- df2 %>%
-  dplyr::filter(year > 2018, month < 12) %>%
-  ggplot2::ggplot(ggplot2::aes(month, total_month, fill = as.factor(year))) +
-  ggplot2::geom_col(position = "dodge") + 
-  ggplot2::scale_fill_discrete(name = "Year") + 
-  ggplot2::labs(x = "Month", y = "Total claims",
-                title = "Unemployment Insurance Claims by Month",
-                fill = "Year") +
-  ggplot2::theme_minimal();p1
-
-plotly::ggplotly(p1)
-
-
-## Plot by year
-library(gganimate)
-df2 %>%
-  ggplot2::ggplot(aes(year, total_year/1000)) +
-  ggplot2::geom_point() +
-  ggplot2::geom_path() +
-  ggplot2::labs(y = "Total Claims per year (in thousands)",
-                title = "COVID-19's Economic Impact in Connecticut",
-                subtitle = "Unemployment Insurance Claims 2005-2020") +
-  ggplot2::theme_minimal() +
-  ggplot2::theme(axis.title.x = element_blank(),
-                 plot.title = element_text(hjust = 0.5),
-                 plot.subtitle = element_text(hjust = 0.5))
-
+  dplyr::select(
+    new_claim_date, 
+    month, 
+    year, 
+    total, 
+    total_month, 
+    total_year,
+    tidyr::everything()
+  ) %>% 
+  tidyr::pivot_longer(
+    cols = agric_forestry_fishing_hunting:other_unknown, 
+    names_to = "industry", 
+    values_to = "claims"
+  ) %>% 
+  dplyr::mutate(month_abbr = lubridate::month(new_claim_date, label = TRUE))
 
 
 ## Plot
-df_industry2 %>%
+df_industry %>%
   dplyr::filter(year == 2020) %>%
   ggplot2::ggplot(aes(New.Claim.Date, log(claims), color = industry)) +
   ggplot2::geom_path() +
