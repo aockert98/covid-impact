@@ -1,7 +1,6 @@
 
 ## County data from New York Times' Github Page
-counties <- read.csv("us-counties.csv")
-counties_df <- counties %>%
+counties <- read.csv("data/geo/us-counties.csv") %>%
   dplyr::filter(state == "Connecticut")
 
 
@@ -10,8 +9,7 @@ library(maps)
 library(USAboundaries)
 
 ## Get map
-county_map <- us_counties()
-county_map <- county_map %>%
+county_map <- us_counties() %>%
   filter(state_abbr == "CT") %>%
   mutate(fips = as.numeric(geoid))
 
