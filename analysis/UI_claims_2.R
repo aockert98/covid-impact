@@ -60,42 +60,9 @@ df_industry <- df %>%
 ## Plot
 df_industry %>%
   dplyr::filter(year == 2020) %>%
-  ggplot2::ggplot(aes(New.Claim.Date, log(claims), color = industry)) +
+  ggplot2::ggplot(aes(new_claim_date, log(claims), color = industry)) +
   ggplot2::geom_path() +
   theme(legend.position = "none")
-
-## By percent of total claims
-df_industry2 %>%
-  dplyr::filter(year == 2020) %>%
-  dplyr::mutate(pct = claims/total) %>%
-  ggplot2::ggplot(aes(new_claim_date, pct, fill = industry)) +
-  ggplot2::geom_path()
-
-
-## Heatmap 
-## color scale needs work! will be tricky
-## interesting to see the next "darkest" row is 2008-09...
-
-## logged cases works MUCH better
-cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
-
-p2 <- df_industry2 %>%
-  ggplot2::ggplot(aes(x = month_abbr, y = year)) +
-  ggplot2::geom_tile(aes(fill = log(Total))) +
-  scale_fill_gradientn(colors = cols_logged(6)) +
-  labs(title = "COVID-19 and Connecticut's Economy", subtitle = "UI Claims by Month, 2005-2020",
-       fill = "Total Claims (logged)") +
-  theme_minimal() +
-  theme(axis.title = element_blank(),
-        plot.title = element_text(hjust = 0.5, size = 20, face = "bold"),
-        plot.subtitle = element_text(hjust = 0.5, size = 16),
-        axis.text.x = element_text(angle = 45)) ; p2
-
-#doesnt work for some reason? ggplotly(p2)
-## create color palette
-cols <- colorRampPalette(colors = c("#f0c897","#c47055","#ad4534","#a22f24",
-                                    "#971913","#920e0b","#8c0303"))
-
 
 ## Total claims per month per industry, by year
 df_industry3 <- df_industry2 %>%
