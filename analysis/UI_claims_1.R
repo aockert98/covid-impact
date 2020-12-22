@@ -13,8 +13,8 @@ library(lubridate)
 library(tidyr)
 library(RSocrata) # get data from ct.gov via API 
 
-## read in "UI Claims by Industry" as csv using 'read.socrata' function
-df <- RSocrata::read.socrata("https://data.ct.gov/resource/r437-8xv7.csv")
+## Read in "UI Claims by Industry" as csv
+df <- read.csv("data/economic/ui_claims_data.csv")
 dplyr::glimpse(df)
 
 ## Create year and month columns using lubridate format function
