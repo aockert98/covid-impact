@@ -11,52 +11,40 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 library(tidyr)
-library(RSocrata) # get data from ct.gov via API 
 
-## read in "UI Claims by Industry" as csv using 'read.socrata' function
-df <- RSocrata::read.socrata("https://data.ct.gov/resource/r437-8xv7.csv")
+## Read in "UI Claims by Industry" as csv
+df <- read.csv("data/economic/ui_claims_data.csv") %>% 
+  # add columns that parse out the "year" & "month" from "new_claim_date"
+  dplyr::mutate(
+    new_claim_date = as.Date(new_claim_date), 
+    year = lubridate::year(new_claim_date), 
+    month = lubridate::month(new_claim_date)
+  ) %>% 
+  # Find total number of claims by month (for each year)
+  dplyr::group_by(year, month) %>%
+  dplyr::mutate(total_month = sum(total)) %>% 
+  dplyr::ungroup() %>% 
+  # Find total number of claims by year
+  dplyr::group_by(year) %>%
+  dplyr::mutate(total_year = sum(total)) %>%  
+  dplyr::ungroup() %>% 
+  dplyr::mutate(
+    month2 = format(new_claim_date, "%m"), 
+    month3 = as.factor(month2), 
+    month_abbr = lubridate::month(new_claim_date, label = TRUE)
+  )
+
 dplyr::glimpse(df)
 
-## Create year and month columns using lubridate format function
-df$year <- as.numeric(format(df$new_claim_date, "%Y"))
-df$month <- as.numeric(format(df$new_claim_date, "%m"))
-
-
-
-## Find total number of claims by month (for each year)
-df2 <- df %>%
-  dplyr::group_by(year, month) %>%
-  dplyr::mutate(total_month = sum(total))
-
-## Find total number of claims by year
-df2 <- df2 %>%
-  dplyr::group_by(year) %>%
-  dplyr::mutate(total_year = sum(total))
-
-df2$month2 <- as.character(format(df$new_claim_date, "%m"))
-
-
-class(df2$month2)
-df2$month3 <- as.factor(df2$month2)  
-class(df2$month3)
-
-#df_industry2 <- df_industry2 %>%
-#  mutate(month_name = case_when(month == 1 ~ "January"))
-
-
-## Naming Months
-dplyr::glimpse(df_industry2)
-df_industry2$month_abbr <- month(df_industry2$new_claim_date, label = TRUE)
-
 ## test plot
-df2 %>%
+df %>%
   ggplot2::ggplot(ggplot2::aes(new_claim_date, total)) +
   ggplot2::geom_point()
 
 ## Plot 1: Interactive barplot 2019 and 2020
 library(ggrepel)
 library(plotly)
-p1 <- df2 %>%
+p1 <- df %>%
   dplyr::filter(year > 2018, month < 12) %>%
   ggplot2::ggplot(ggplot2::aes(month, total_month, fill = as.factor(year))) +
   ggplot2::geom_col(position = "dodge") + 
@@ -64,32 +52,37 @@ p1 <- df2 %>%
   ggplot2::labs(x = "Month", y = "Total claims",
        title = "Unemployment Insurance Claims by Month",
        fill = "Year") +
-  ggplot2::theme_minimal();p1
+  ggplot2::theme_minimal()
+
+p1
 
 plotly::ggplotly(p1)
   
 
 ## Plot by year
 library(gganimate)
-df2 %>%
-  ggplot2::ggplot(aes(year, total_year/1000)) +
+df %>%
+  ggplot2::ggplot(ggplot2::aes(year, total_year/1000)) +
   ggplot2::geom_point() +
   ggplot2::geom_path() +
-  ggplot2::labs(y = "Total Claims per year (in thousands)",
-       title = "COVID-19's Economic Impact in Connecticut",
-       subtitle = "Unemployment Insurance Claims 2005-2020") +
+  ggplot2::labs(
+    y = "Total Claims per year (in thousands)",
+    title = "COVID-19's Economic Impact in Connecticut",
+    subtitle = "Unemployment Insurance Claims 2005-2020") +
   ggplot2::theme_minimal() +
-  ggplot2::theme(axis.title.x = element_blank(),
-        plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))
+  ggplot2::theme(
+    axis.title.x = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
+  )
 
 
 
 ## DATA TRANSFORMATION
 ## select certain industries
 
-df_industry <- df2 %>%
-  dplyr::select(new_claim_date, month, year, total, total_year,
+df_industry <- df %>%
+  dplyr::select(new_claim_date, month, year, month_abbr, total, total_year,
                 construction, manufacturing, wholesale_trade, retail_trade,
                 real_estate)
 
@@ -115,24 +108,40 @@ df_industry2 %>%
 ## Heatmap 
 ## color scale needs work! will be tricky
 ## interesting to see the next "darkest" row is 2008-09...
-
-## logged cases works MUCH better
-
-p2 <- df_industry2 %>%
-  ggplot2::ggplot(aes(x = month_abbr, y = year)) +
-  ggplot2::geom_tile(aes(fill = log(total))) +
-  scale_fill_gradientn(colors = cols_logged(6)) +
-  labs(title = "COVID-19 and Connecticut's Economy", subtitle = "UI Claims by Month, 2005-2020",
-       fill = "Total Claims (logged)") +
-  theme_minimal() +
-  theme(axis.title = element_blank(),
-        plot.title = element_text(hjust = 0.5, size = 20, face = "bold"),
-        plot.subtitle = element_text(hjust = 0.5, size = 16),
-        axis.text.x = element_text(angle = 45)) ; p2
-
-#doesnt work for some reason? ggplotly(p2)
-## create color palette
 cols <- colorRampPalette(colors = c("#f0c897","#c47055","#ad4534","#a22f24",
                                     "#971913","#920e0b","#8c0303"))
 
+## logged cases works MUCH better
+## create color palette
 cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
+
+p2 <- df_industry2 %>%
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = month_abbr, 
+      y = year
+    )
+  ) +
+  ggplot2::geom_tile(ggplot2::aes(fill = log(total))) +
+  ggplot2::scale_fill_gradientn(colors = cols_logged(6)) +
+  ggplot2::labs(
+    title = "COVID-19 and Connecticut's Economy", 
+    subtitle = "UI Claims by Month, 2005-2020", 
+    fill = "Total Claims (logged)") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(
+    axis.title = ggplot2::element_blank(),
+    plot.title = ggplot2::element_text(
+      hjust = 0.5, 
+      size = 20, 
+      face = "bold"
+    ),
+    plot.subtitle = ggplot2::element_text(
+      hjust = 0.5, 
+      size = 16
+    ),
+    axis.text.x = ggplot2::element_text(angle = 45)
+  )
+
+#doesnt work for some reason? ggplotly(p2)
+
