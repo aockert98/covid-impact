@@ -109,16 +109,18 @@ df_industry_for_dt <- df_industry_totals %>%
     Year = year, 
     Month = month_abbr, 
     Industry = industry, 
-    Claims = claims
+    Claims = claims, 
+    industry_pct
   ) %>%
   dplyr::group_by(Month, Year, Industry) %>%
   dplyr::summarize(
     total_month = sum(Claims), 
+    industry_pct = mean(industry_pct), 
     .groups = "drop"
   ) %>% 
   # clean up Industry names-- remove the _ and capitalize first letters of the words
   dplyr::mutate(
-    Industry = stringr::str_replace(Industry, "_", " "), 
+    Industry = stringr::str_replace_all(Industry, "_", " "), 
     Industry = stringr::str_to_title(Industry)
   )
 
@@ -127,7 +129,7 @@ df_industry_for_dt %>%
   dplyr::select(
     Year,
     Industry, 
-    Total = industry_year,
+    Total = total_month,
     Percent = industry_pct
   ) %>% 
   dplyr::mutate(Year = as.character(Year)) %>% 
