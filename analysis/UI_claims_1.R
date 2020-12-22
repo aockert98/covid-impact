@@ -11,7 +11,6 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 library(tidyr)
-library(RSocrata) # get data from ct.gov via API 
 
 ## Read in "UI Claims by Industry" as csv
 df <- read.csv("data/economic/ui_claims_data.csv") %>% 
