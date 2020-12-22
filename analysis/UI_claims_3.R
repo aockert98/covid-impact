@@ -14,33 +14,21 @@ library(ggplot2)
 library(lubridate)
 library(tidyr)
 library(stringr)
-#library(RSocrata) # get data from ct.gov via API 
-
-## read in "UI Claims by Industry" as csv using 'read.socrata' function
-#df <- RSocrata::read.socrata("https://data.ct.gov/resource/r437-8xv7.csv")
-#dplyr::glimpse(df)
-
 
 # Data Loading and Cleaning -----------------------------------------------
 
 ## read in "UI Claims by Industry" csv from Data folder
-ui <- read.csv("Data/ui_claims_data.csv")
-ui <- read.csv(file.choose())
+ui <- read.csv("data/economic/ui_claims_data.csv") %>% 
+  dplyr::mutate(
+    new_claim_date = stringr::str_sub(new_claim_date, start = 1, end = 10), 
+    new_claim_date = as.Date(new_claim_date), 
+    year = as.numeric(format(new_claim_date, "%Y")), 
+    month = as.numeric(format(new_claim_date, "%m"))
+  )
+
 dplyr::glimpse(ui)
 
-## Remove time character that comes after the date
-ui$new_claim_date <- sub("T.*", "", ui$new_claim_date)
-## Convert date character string to date format
-ui$new_claim_date <- lubridate::ymd(ui$new_claim_date)
-class(ui$new_claim_date) #check that it worked
-
-## extract year and month
-ui$year <- as.numeric(format(ui$new_claim_date, "%Y"))
-ui$month <- as.numeric(format(ui$new_claim_date, "%m"))
-
-
 # Data Transformation and Value-Finding -----------------------------------
-
 
 ## Find total number of claims per month and per year
 ui2 <- ui %>%
@@ -344,15 +332,15 @@ ui_dumb3$industry <- str_to_title(ui_dumb3$industry)
 
 ui_dumb3 %>%
   #filter(industry != "Self Employed") %>%
-  ggplot(aes(x = year2015/1000, xend = year2020/1000, y = industry, group = industry)) +
-  geom_dumbbell(color = "darkgray",
+  ggplot2::ggplot(aes(x = year2015/1000, xend = year2020/1000, y = industry, group = industry)) +
+  ggplot2::geom_dumbbell(color = "darkgray",
                 colour_x = "darkgray",
                 colour_xend="black") +
-  labs(x = "UI Claims Filed",
+  ggplot2::labs(x = "UI Claims Filed",
        y = "Industry",
        title = "The Economic Impact of the Coronavirus Pandemic in Connecticut",
        subtitle = "Comparing Unemployment Insurance Claims Filed in 2013 vs. 2020", 
        caption = "Source: (fill in)") +
-  theme_minimal() +
-  theme(plot.margin = unit(c(1.5,3,1,0), "cm"))
+  ggplot2::theme_minimal() +
+  ggplot2::theme(plot.margin = unit(c(1.5,3,1,0), "cm"))
 
