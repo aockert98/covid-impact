@@ -33,15 +33,20 @@ ui <- fluidPage(
         selected = "construction"
       ),
       textOutput("choice")),
+    #Trying out input for dumbbell plot
+   # selectInput("xstart", "From:", choices = c("year2006","year2008")),
+    #selectInput("xend", "To:", choices = c("year2018","year2019")),
     # Date range input
-    dateRangeInput("dates", "Date Range:",
-                   start = "2005-01-01",
-                   end   = "2020-12-20"),
+    #dateRangeInput("dates", "Date Range:",
+     #              start = "2005-01-01",
+      #             end   = "2020-12-20"),
       
     mainPanel(tabsetPanel(
               tabPanel("table",DT::DTOutput("UI_table")),
               tabPanel("plot", plotOutput("plot1")),
-              tabPanel("Other plot", plotOutput("plot2"))))))
+              tabPanel("Other plot", plotOutput("plot2"))
+              #tabPanel("Dumbbell plot", plotOutput("plotd"))
+              ))))
               
   
   #sliderInput("year","Select Year", min = 2005, max = 2020,
@@ -81,6 +86,21 @@ server <- function(input, output) {
       ggplot(aes(new_claim_date, claims, color = industry)) + 
       geom_path() +
       theme_light()
+  })
+  output$plotd <- renderPlot({
+    ui_dumb3 %>%
+      #filter(industry != "Self Employed") %>%
+      ggplot(aes(x = input$xstart, xend = input$xend, y = industry, group = industry)) +
+      geom_dumbbell(color = "darkgray",
+                    colour_x = "darkgray",
+                    colour_xend="black") +
+      labs(x = "UI Claims Filed",
+           y = "Industry",
+           title = "The Economic Impact of the Coronavirus Pandemic in Connecticut",
+           subtitle = "Comparing Unemployment Insurance Claims Filed in 2013 vs. 2020", 
+           caption = "Source: (fill in)") +
+      theme_minimal() +
+      theme(plot.margin = unit(c(1.5,3,1,0), "cm"))
   })
   
 }
