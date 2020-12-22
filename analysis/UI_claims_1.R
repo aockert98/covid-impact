@@ -14,39 +14,27 @@ library(tidyr)
 library(RSocrata) # get data from ct.gov via API 
 
 ## Read in "UI Claims by Industry" as csv
-df <- read.csv("data/economic/ui_claims_data.csv")
-dplyr::glimpse(df)
-
-## Create year and month columns using lubridate format function
-df$year <- as.numeric(format(df$new_claim_date, "%Y"))
-df$month <- as.numeric(format(df$new_claim_date, "%m"))
-
-
-
-## Find total number of claims by month (for each year)
-df2 <- df %>%
+df <- read.csv("data/economic/ui_claims_data.csv") %>% 
+  # add columns that parse out the "year" & "month" from "new_claim_date"
+  dplyr::mutate(
+    year = lubridate::year(as.Date(new_claim_date)), 
+    month = lubridate::month(as.Date(new_claim_date))
+  ) %>% 
+  # Find total number of claims by month (for each year)
   dplyr::group_by(year, month) %>%
-  dplyr::mutate(total_month = sum(total))
-
-## Find total number of claims by year
-df2 <- df2 %>%
+  dplyr::mutate(total_month = sum(total)) %>% 
+  dplyr::ungroup() %>% 
+  # Find total number of claims by year
   dplyr::group_by(year) %>%
-  dplyr::mutate(total_year = sum(total))
+  dplyr::mutate(total_year = sum(total)) %>%  
+  dplyr::ungroup() %>% 
+  dplyr::mutate(
+    month2 = format(as.Date(new_claim_date), "%m"), 
+    month3 = as.factor(month2), 
+    month_abbr = lubridate::month(new_claim_date, label = TRUE)
+  )
 
-df2$month2 <- as.character(format(df$new_claim_date, "%m"))
-
-
-class(df2$month2)
-df2$month3 <- as.factor(df2$month2)  
-class(df2$month3)
-
-#df_industry2 <- df_industry2 %>%
-#  mutate(month_name = case_when(month == 1 ~ "January"))
-
-
-## Naming Months
-dplyr::glimpse(df_industry2)
-df_industry2$month_abbr <- month(df_industry2$new_claim_date, label = TRUE)
+dplyr::glimpse(df)
 
 ## test plot
 df2 %>%
