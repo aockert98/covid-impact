@@ -62,16 +62,19 @@ plotly::ggplotly(p1)
 ## Plot by year
 library(gganimate)
 df %>%
-  ggplot2::ggplot(aes(year, total_year/1000)) +
+  ggplot2::ggplot(ggplot2::aes(year, total_year/1000)) +
   ggplot2::geom_point() +
   ggplot2::geom_path() +
-  ggplot2::labs(y = "Total Claims per year (in thousands)",
-       title = "COVID-19's Economic Impact in Connecticut",
-       subtitle = "Unemployment Insurance Claims 2005-2020") +
+  ggplot2::labs(
+    y = "Total Claims per year (in thousands)",
+    title = "COVID-19's Economic Impact in Connecticut",
+    subtitle = "Unemployment Insurance Claims 2005-2020") +
   ggplot2::theme_minimal() +
-  ggplot2::theme(axis.title.x = element_blank(),
-        plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))
+  ggplot2::theme(
+    axis.title.x = element_blank(),
+    plot.title = element_text(hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5)
+  )
 
 
 
@@ -113,16 +116,32 @@ cols <- colorRampPalette(colors = c("#f0c897","#c47055","#ad4534","#a22f24",
 cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
 
 p2 <- df_industry2 %>%
-  ggplot2::ggplot(aes(x = month_abbr, y = year)) +
-  ggplot2::geom_tile(aes(fill = log(total))) +
-  scale_fill_gradientn(colors = cols_logged(6)) +
-  labs(title = "COVID-19 and Connecticut's Economy", subtitle = "UI Claims by Month, 2005-2020",
-       fill = "Total Claims (logged)") +
-  theme_minimal() +
-  theme(axis.title = element_blank(),
-        plot.title = element_text(hjust = 0.5, size = 20, face = "bold"),
-        plot.subtitle = element_text(hjust = 0.5, size = 16),
-        axis.text.x = element_text(angle = 45)) ; p2
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = month_abbr, 
+      y = year
+    )
+  ) +
+  ggplot2::geom_tile(ggplot2::aes(fill = log(total))) +
+  ggplot2::scale_fill_gradientn(colors = cols_logged(6)) +
+  ggplot2::labs(
+    title = "COVID-19 and Connecticut's Economy", 
+    subtitle = "UI Claims by Month, 2005-2020", 
+    fill = "Total Claims (logged)") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(
+    axis.title = ggplot2::element_blank(),
+    plot.title = ggplot2::element_text(
+      hjust = 0.5, 
+      size = 20, 
+      face = "bold"
+    ),
+    plot.subtitle = ggplot2::element_text(
+      hjust = 0.5, 
+      size = 16
+    ),
+    axis.text.x = ggplot2::element_text(angle = 45)
+  )
 
 #doesnt work for some reason? ggplotly(p2)
 
