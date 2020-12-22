@@ -36,14 +36,14 @@ df <- read.csv("data/economic/ui_claims_data.csv") %>%
 dplyr::glimpse(df)
 
 ## test plot
-df2 %>%
+df %>%
   ggplot2::ggplot(ggplot2::aes(new_claim_date, total)) +
   ggplot2::geom_point()
 
 ## Plot 1: Interactive barplot 2019 and 2020
 library(ggrepel)
 library(plotly)
-p1 <- df2 %>%
+p1 <- df %>%
   dplyr::filter(year > 2018, month < 12) %>%
   ggplot2::ggplot(ggplot2::aes(month, total_month, fill = as.factor(year))) +
   ggplot2::geom_col(position = "dodge") + 
@@ -51,14 +51,14 @@ p1 <- df2 %>%
   ggplot2::labs(x = "Month", y = "Total claims",
        title = "Unemployment Insurance Claims by Month",
        fill = "Year") +
-  ggplot2::theme_minimal();p1
+  ggplot2::theme_minimal()
 
 plotly::ggplotly(p1)
   
 
 ## Plot by year
 library(gganimate)
-df2 %>%
+df %>%
   ggplot2::ggplot(aes(year, total_year/1000)) +
   ggplot2::geom_point() +
   ggplot2::geom_path() +
@@ -75,7 +75,7 @@ df2 %>%
 ## DATA TRANSFORMATION
 ## select certain industries
 
-df_industry <- df2 %>%
+df_industry <- df %>%
   dplyr::select(new_claim_date, month, year, total, total_year,
                 construction, manufacturing, wholesale_trade, retail_trade,
                 real_estate)
