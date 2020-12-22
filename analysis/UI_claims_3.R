@@ -31,22 +31,23 @@ dplyr::glimpse(ui)
 # Data Transformation and Value-Finding -----------------------------------
 
 ## Find total number of claims per month and per year
-ui2 <- ui %>%
+ui2 <- ui %>% 
+  dplyr::select(-unnamed_column) %>% 
   dplyr::group_by(year, month) %>%
   dplyr::mutate(total_month = sum(total)) %>%
   ungroup() %>%
   dplyr::group_by(year) %>%
-  dplyr::mutate(total_year = sum(total))
-
-#df2$month2 <- as.character(format(df$new_claim_date, "%m"))
+  dplyr::mutate(total_year = sum(total)) %>% 
+  dplyr::ungroup()
 
 ## Transform data from wide to long format
 ui_industry <- ui2 %>%
-  tidyr::pivot_longer(cols = agric_forestry_fishing_hunting:other_unknown,
-                      names_to = "industry", values_to = "claims")
-
-## Naming Months
-ui_industry$month_abbr <- month(ui_industry$new_claim_date, label = TRUE)
+  tidyr::pivot_longer(
+    cols = agric_forestry_fishing_hunting:other_unknown,
+    names_to = "industry", 
+    values_to = "claims"
+  ) %>% 
+  dplyr::mutate(month_abbr = lubridate::month(ui_industry$new_claim_date, label = TRUE))
 
 
 # Note: Plot Vision/Ideas -------------------------------------------------
@@ -70,41 +71,6 @@ ui_industry$month_abbr <- month(ui_industry$new_claim_date, label = TRUE)
 
 
 # Plots -------------------------------------------------------------------
-
-
-## Plot 1: (Interactive) Barplot 2019 and 2020
-## NOTE: vision for app- select year(s) to compare (to 2020)
-p1 <- ui_industry %>%
-  dplyr::filter(year > 2018, month < 12) %>%
-  ggplot2::ggplot(aes(month_abbr, total_month, fill = as.factor(year))) +
-  ggplot2::geom_col(position = "dodge") + 
-  ggplot2::scale_fill_discrete(name = "Year") + 
-  ggplot2::labs(x = "Month", y = "Total claims",
-                title = "Unemployment Insurance Claims by Month",
-                subtitle = "January - November",
-                fill = "Year") +
-  ggplot2::theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45),
-        plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5));p1
-
-## Add interaction
-#plotly::ggplotly(p1)
-
-
-## Plot by year
-
-ui_industry %>%
-  ggplot2::ggplot(aes(year, total_year/1000)) +
-  ggplot2::geom_point() +
-  ggplot2::geom_path() +
-  ggplot2::labs(y = "Total Claims per year (in thousands)",
-                title = "COVID-19's Economic Impact in Connecticut",
-                subtitle = "Unemployment Insurance Claims 2005-2020") +
-  ggplot2::theme_minimal() +
-  ggplot2::theme(axis.title.x = element_blank(),
-                 plot.title = element_text(hjust = 0.5),
-                 plot.subtitle = element_text(hjust = 0.5))
 
 ## By percent of total claims
 ## UGLY-- just a test plot
