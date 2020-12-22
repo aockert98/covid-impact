@@ -17,6 +17,8 @@ county_map <- USAboundaries::us_counties() %>%
 covid_df <- dplyr::full_join(county_map, counties, by = "fips")
 anti_df <- dplyr::anti_join(county_map, counties, by = "fips")
 
+# Create color palette
+cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
 
 ## Map 
 map_plot <- covid_df %>%
