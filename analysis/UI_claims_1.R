@@ -16,8 +16,9 @@ library(tidyr)
 df <- read.csv("data/economic/ui_claims_data.csv") %>% 
   # add columns that parse out the "year" & "month" from "new_claim_date"
   dplyr::mutate(
-    year = lubridate::year(as.Date(new_claim_date)), 
-    month = lubridate::month(as.Date(new_claim_date))
+    new_claim_date = as.Date(new_claim_date), 
+    year = lubridate::year(new_claim_date), 
+    month = lubridate::month(new_claim_date)
   ) %>% 
   # Find total number of claims by month (for each year)
   dplyr::group_by(year, month) %>%
@@ -28,7 +29,7 @@ df <- read.csv("data/economic/ui_claims_data.csv") %>%
   dplyr::mutate(total_year = sum(total)) %>%  
   dplyr::ungroup() %>% 
   dplyr::mutate(
-    month2 = format(as.Date(new_claim_date), "%m"), 
+    month2 = format(new_claim_date, "%m"), 
     month3 = as.factor(month2), 
     month_abbr = lubridate::month(new_claim_date, label = TRUE)
   )
@@ -53,6 +54,8 @@ p1 <- df %>%
        fill = "Year") +
   ggplot2::theme_minimal()
 
+p1
+
 plotly::ggplotly(p1)
   
 
@@ -76,7 +79,7 @@ df %>%
 ## select certain industries
 
 df_industry <- df %>%
-  dplyr::select(new_claim_date, month, year, total, total_year,
+  dplyr::select(new_claim_date, month, year, month_abbr, total, total_year,
                 construction, manufacturing, wholesale_trade, retail_trade,
                 real_estate)
 
@@ -102,8 +105,12 @@ df_industry2 %>%
 ## Heatmap 
 ## color scale needs work! will be tricky
 ## interesting to see the next "darkest" row is 2008-09...
+cols <- colorRampPalette(colors = c("#f0c897","#c47055","#ad4534","#a22f24",
+                                    "#971913","#920e0b","#8c0303"))
 
 ## logged cases works MUCH better
+## create color palette
+cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
 
 p2 <- df_industry2 %>%
   ggplot2::ggplot(aes(x = month_abbr, y = year)) +
@@ -118,8 +125,4 @@ p2 <- df_industry2 %>%
         axis.text.x = element_text(angle = 45)) ; p2
 
 #doesnt work for some reason? ggplotly(p2)
-## create color palette
-cols <- colorRampPalette(colors = c("#f0c897","#c47055","#ad4534","#a22f24",
-                                    "#971913","#920e0b","#8c0303"))
 
-cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
