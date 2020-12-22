@@ -38,23 +38,12 @@ dplyr::glimpse(df)
 
 
 ## DATA TRANSFORMATION
-## select certain industries
 
-df_industry <- df2 %>%
-  dplyr::select(New.Claim.Date, month, year, Total, total_year,
-                construction, manufacturing, wholesale_trade, retail_trade,
-                real_estate)
-
-df_industry <- df2 %>%
+df_industry <- df %>%
   dplyr::select(New.Claim.Date, month, year, Total, total_month,total_year,
-                everything())
+                tidyr::everything())
 
-## Transform wide data to long data
-#df_industry2 <- df_industry %>%
- # tidyr::pivot_longer(cols = construction:real_estate, names_to = "industry",
-  #                    values_to = "claims")
-library(tidyr)
-glimpse(df_industry)
+
 df_industry2 <- df_industry %>%
  tidyr::pivot_longer(cols = Agric...Forestry..Fishing...Hunting:Other.Unknown,
                      names_to = "industry", values_to = "claims")
