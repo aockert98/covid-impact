@@ -302,4 +302,29 @@ ui_dumb %>%
   scale_y_discrete(expand=c(0.15,0))
 
 
+## Function to create delta col
+## its not working thru function?? what might be wrong??
+
+# seems like it might have something to do with the ` ` and year value
+
+myfunc <- function(x, y) {
+  ui_dumb2 <- ui_dumb %>%
+    mutate(delta2 = ((ui_dumb$`y`-ui_dumb$`x`)/ui_dumb$`x`) * 100)
+  print(ui_dumb2$delta2)
+}
+
+myfunc(2006,2019)
+
+
+(ui_dumb$`2020` - ui_dumb$`2010`)/ui_dumb$`2010`
+
+ui_dumb2 <- ui_dumb %>%
+  mutate(delta2 = (ui_dumb$`2020` - ui_dumb$`2010`)/ui_dumb$`2010`)
+
+ui_dumb2 <- ui_dumb2 %>%
+  mutate(delta3 = (ui_dumb$`2020` - ui_dumb$`2012`)/ui_dumb$`2012`)
+
+x = `2020`
+x = 2020
+         
 
