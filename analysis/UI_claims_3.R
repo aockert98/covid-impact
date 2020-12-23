@@ -45,9 +45,9 @@ ui_industry <- ui2 %>%
   tidyr::pivot_longer(
     cols = agric_forestry_fishing_hunting:other_unknown,
     names_to = "industry", 
-    values_to = "claims"
-  ) %>% 
-  dplyr::mutate(month_abbr = lubridate::month(ui_industry$new_claim_date, label = TRUE))
+    values_to = "claims")
+## Add month abbr column
+ui_industry$month_abbr <- lubridate::month(ui_industry$new_claim_date, label = TRUE)
 
 
 # Note: Plot Vision/Ideas -------------------------------------------------
@@ -98,7 +98,6 @@ ui_industry <- ui_industry %>%
 ## Transform year from continuous to discrete (factor)
 ui_industry$year_fact <- cut(ui_industry$year, breaks = c(2004:2020), 
                               labels = c(2005:2020))
-ui_dumb <- ui_industry #saving current data for dumbell plot below
 
 # Data Transformation/Plotting on % Industry level ------------------------
 
@@ -241,28 +240,20 @@ ui_industry3 %>%
 
 
 # Dumbbell Data Trans + Plot ----------------------------------------------
-glimpse(ui_dumb)
+library(ggalt) #for dumbbell plot
 
-ui_dumb2 <- ui_dumb %>%
-  select(year, industry, industry_year)
-
-## add characters to beginning of year
-# ui_dumb2$year <- paste0("year", ui_dumb2$year)
-
-ui_dumb3 <- ui_dumb2 %>%
+ui_dumb <- ui_industry %>%
+  select(year, industry, industry_year) %>%
   pivot_wider(names_from = "year",
               values_from = "industry_year",
-              values_fn = mean) # need to summarize bc each year listed multiple times
-# Package for dumbbell p
-#install.packages("ggalt")
-library(ggalt)
+              values_fn = mean) 
 
 # Clean up industry names
-ui_dumb3$industry <- str_replace_all(ui_dumb3$industry, "_", " ")
-ui_dumb3$industry <- str_to_title(ui_dumb3$industry)
+ui_dumb$industry <- str_replace_all(ui_dumb$industry, "_", " ")
+ui_dumb$industry <- str_to_title(ui_dumb$industry)
 
 
-ui_dumb3 %>%
+ui_dumb %>%
   #filter(industry != "Self Employed") %>%
   ggplot2::ggplot(aes(x = `2015`/1000, xend = `2020`/1000, y = industry, group = industry)) +
   ggalt::geom_dumbbell(color = "darkgray",
