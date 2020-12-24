@@ -13,8 +13,6 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 library(tidyr)
-library(ggrepel)
-library(plotly)
 library(stringr)
 library(DT)
 
@@ -33,7 +31,8 @@ df <- read.csv("data/economic/ui_claims_data.csv") %>%
   dplyr::ungroup() %>% 
   dplyr::mutate(
     month2 = format(new_claim_date, "%m"), 
-    month3 = as.factor(month2)
+    month3 = as.factor(month2),
+    month_abbr = lubridate::month(new_claim_date, label = TRUE)
   )
 
 dplyr::glimpse(df)
@@ -55,8 +54,7 @@ df_industry <- df %>%
     cols = agric_forestry_fishing_hunting:other_unknown, 
     names_to = "industry", 
     values_to = "claims"
-  ) %>% 
-  dplyr::mutate(month_abbr = lubridate::month(new_claim_date, label = TRUE))
+  ) 
 
 
 ## Plot

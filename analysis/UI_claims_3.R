@@ -198,9 +198,6 @@ ui_comb %>%
 
 
 # Interactive Datatable using DT package ----------------------------------
-## BIGGEST THING-- FIND WAY TO SUMMARIZE 
-## multiple values are still being displayed for each year
-
 library(DT)
 
 ## Clean up for datatable
@@ -217,8 +214,8 @@ ui_industry2 <- ui_industry %>%
 ## For % Industry table
 ui_industry3 <- ui_industry %>%
   dplyr::select(Year = year,
-                Industry = industry, Total = industry_year,
-                Percent = industry_pct)
+                Industry = industry, Total = industry_year)
+               # Percent = industry_pct)
 ## Filtering is easier when year is a character
 ui_industry3$Year = as.character(ui_industry3$Year)
 
@@ -227,7 +224,7 @@ ui_industry3 %>%
   dplyr::group_by(Year, Industry) %>% 
   dplyr::summarise(
     Total = mean(Total), 
-    Percent = mean(Percent), 
+    #Percent = mean(Percent), 
     .groups = "drop"
   ) %>% 
   DT::datatable(

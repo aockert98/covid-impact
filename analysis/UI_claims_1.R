@@ -41,9 +41,7 @@ df %>%
   ggplot2::ggplot(ggplot2::aes(new_claim_date, total)) +
   ggplot2::geom_point()
 
-## Plot 1: Interactive barplot 2019 and 2020
-library(ggrepel)
-library(plotly)
+## Plot 1: Barplot 2019 and 2020
 p1 <- df %>%
   dplyr::filter(year > 2018, month < 12) %>%
   ggplot2::ggplot(ggplot2::aes(month, total_month, fill = as.factor(year))) +
@@ -54,13 +52,7 @@ p1 <- df %>%
        fill = "Year") +
   ggplot2::theme_minimal()
 
-p1
-
-plotly::ggplotly(p1)
-  
-
 ## Plot by year
-library(gganimate)
 df %>%
   ggplot2::ggplot(ggplot2::aes(year, total_year/1000)) +
   ggplot2::geom_point() +
@@ -75,8 +67,6 @@ df %>%
     plot.title = element_text(hjust = 0.5),
     plot.subtitle = element_text(hjust = 0.5)
   )
-
-
 
 ## DATA TRANSFORMATION
 ## select certain industries
@@ -98,7 +88,7 @@ df_industry2 %>%
   ggplot2::geom_path()
 
 ## By percent of total claims
-df_industry2 %>%
+df_industry %>%
   dplyr::filter(year == 2020) %>%
   dplyr::mutate(pct = claims/total) %>%
   ggplot2::ggplot(aes(new_claim_date, pct, fill = industry)) +
@@ -106,16 +96,10 @@ df_industry2 %>%
 
 
 ## Heatmap 
-## color scale needs work! will be tricky
-## interesting to see the next "darkest" row is 2008-09...
-cols <- colorRampPalette(colors = c("#f0c897","#c47055","#ad4534","#a22f24",
-                                    "#971913","#920e0b","#8c0303"))
-
-## logged cases works MUCH better
 ## create color palette
 cols_logged <- colorRampPalette(colors = c("#ede8b0","#e06c00","#e60404","#760000"))
 
-p2 <- df_industry2 %>%
+df_industry %>%
   ggplot2::ggplot(
     ggplot2::aes(
       x = month_abbr, 
