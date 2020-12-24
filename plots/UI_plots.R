@@ -6,6 +6,7 @@ library(tidyr)
 library(ggplot2)
 library(lubridate)
 library(ggalt)
+library(DT)
 
 # Grab the UI claims data 
 source("transformation/UI_claims_data.R")
@@ -102,3 +103,15 @@ ui_dumb %>%
   geom_text(data = filter(ui_dumb, industry=="Wholesale Trade"),
             aes(x = 90, y = industry, label = "Percent Change"), vjust = -1, hjust = 0.5) +
   scale_y_discrete(expand=c(0.15,0))
+
+## Interactive Data Table
+ui_dt %>% 
+  DT::datatable(
+    rownames = FALSE,
+    filter = "top",
+    #colnames = c("Total" = "total_month"),
+    extensions = "Buttons",
+    options = list(dom = "Bfrtip",
+                   buttons = c("csv","excel","pdf")))
+
+

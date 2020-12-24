@@ -76,3 +76,23 @@ ui_dumb <- ui_industry %>%
 ## [new (2020) - old (selected year)] / old (selected year)
 ui_dumb <- ui_dumb %>%
   mutate(delta = (`2020`-`2013`)/`2013` * 100)
+
+
+## Clean up for Data Table 
+
+ui_dt <- ui_industry %>%
+  # select relevant columns
+  dplyr::select(Year = year,
+                Industry = industry,
+                Total = industry_year) %>%
+  # year as character makes filtering easier
+  dplyr::mutate(Year = as.character(Year)) %>%
+  # summarize stats so one row per industry (per year)
+  dplyr::group_by(Year, Industry) %>%
+  dplyr::summarize(Total = mean(Total),
+                   .groups = "drop")
+
+
+
+
+
