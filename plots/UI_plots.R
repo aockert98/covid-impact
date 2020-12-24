@@ -82,6 +82,22 @@ ui_dumb %>%
             vjust = -1, size = 3, fontface = "bold") +
   scale_y_discrete(expand=c(0.15,0))  
 
+## Interactive Version using plotly package
+library(plotly)
+ui_int <- plot_ly(ui_dumb, color = I("gray80")) %>% 
+  add_segments(x = ~`2013`, xend = ~`2020`,
+               y = ~industry, yend = ~industry, 
+               showlegend = FALSE) %>%
+  add_markers(x = ~`2013`, y = ~industry, 
+              name = "2013", color = I("gray80")) %>%
+  add_markers(x = ~`2020`, y = ~industry, 
+              name = "2020", color = I("black")) %>%
+  layout(
+  title = "UI Claims Filed in 2013 versus 2020",
+  xaxis = list(title = "UI Claims Filed (in thousands)"),
+  margin = list(l = 65))
+
+ui_int
 
 ## Option 2: Next to end
 ui_dumb %>%
