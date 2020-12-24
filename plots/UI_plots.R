@@ -81,3 +81,24 @@ ui_dumb %>%
             vjust = -1, size = 3, fontface = "bold") +
   scale_y_discrete(expand=c(0.15,0))  
 
+
+## Option 2: Next to end
+ui_dumb %>%
+  filter(industry != "Self Employed") %>%
+  ggplot2::ggplot(aes(x = `2013`/1000, xend = `2020`/1000, y = industry, group = industry)) +
+  ggalt::geom_dumbbell(color = "darkgray",
+                       colour_x = "darkgray",
+                       colour_xend="black") +
+  ggplot2::labs(x = "UI Claims Filed",
+                y = "Industry",
+                title = "The Economic Impact of the Coronavirus Pandemic in Connecticut",
+                subtitle = "Comparing Unemployment Insurance Claims Filed in 2013 vs. 2020", 
+                caption = "Source: (fill in)") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(plot.margin = unit(c(1.5,3,1,0), "cm")) +
+  #geom_rect(aes(xmin = 100, xmax = 120, ymin = -Inf, ymax = Inf), fill = "grey") +
+  geom_text(aes(label=paste0(round(delta), "%"), y = industry, x = `2020`/1000), hjust = -0.5, 
+            size = 3) +
+  geom_text(data = filter(ui_dumb, industry=="Wholesale Trade"),
+            aes(x = 90, y = industry, label = "Percent Change"), vjust = -1, hjust = 0.5) +
+  scale_y_discrete(expand=c(0.15,0))
