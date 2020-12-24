@@ -50,7 +50,7 @@ ui_industry$industry <- stringr::str_to_title(ui_industry$industry)
 
 
 ## Per Industry data
-df_industry <- df_industry %>%
+ui_industry <- ui_industry %>%
   # Total claims per month (by industry)
   dplyr::group_by(month, year, industry) %>%
   dplyr::mutate(industry_month = sum(claims, na.rm=TRUE)) %>% 
@@ -65,7 +65,7 @@ df_industry <- df_industry %>%
   
 
 ## Long to Wide data for Dumbbell Plot
-ui_dumb <- df_industry %>%
+ui_dumb <- ui_industry %>%
   select(year, industry, industry_year) %>%
   pivot_wider(names_from = "year",
               values_from = "industry_year",
