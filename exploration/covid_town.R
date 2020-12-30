@@ -222,8 +222,8 @@ claim_map %>%
   ggplot() +
   geom_sf() +
   geom_sf(aes(fill = total_claims)) +
-  labs(title = "The Coronavirus in Connecticut Towns",
-       subtitle = "Cases per 100,000",
+  labs(title = "Economic Impact of COVID-19 in CT",
+       subtitle = "UI Files Claimed 2020",
        fill = "") +
   scale_fill_gradientn(colors = cols(10)) +
   theme_void() +
