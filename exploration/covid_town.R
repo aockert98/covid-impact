@@ -177,42 +177,36 @@ covid_age_dr %>%
 
 # Claims by Town ----------------------------------------------------------
 
-tc <- read.csv("data/geo/initial_claims_town.csv")
-
-newtc <- tc %>%
+# load in town claims dataset
+tc <- read.csv("data/geo/initial_claims_town.csv") %>%
   pivot_longer(names_to = "date",
                values_to = "claims",
-               January.09.2005:December.20..2020)
-glimpse(newtc)
+               January.09.2005:December.20..2020) %>%
+  dplyr::mutate(date = lubridate::mdy(date))
+dplyr::glimpse(tc)
 
-newtc <- newtc %>%
-  mutate(date = lubridate::mdy(date))
+## Subset dataset for the year 2020
+tc2020 <- tc %>%
+  filter(date >= "2020-01-01") %>%
+  filter(Town.Name != "Total") %>%
+  dplyr::mutate(claims = str_remove_all(claims, ",")) #remove commas so can convert claims from char to numeric
 
-newtc2 <- newtc %>%
-  filter(date > "2020-01-01") %>%
-  filter(Town.Name != "Total")
+tc2020$claims <- as.numeric(tc2020$claims)
 
-## remove commas so can convert claims from char to numeric
-newtc2 <- newtc2 %>%
-  mutate(claims = str_remove_all(claims, ",")) 
-newtc2$claims <- as.numeric(newtc2$claims)
-glimpse(newtc2)
-
-# summarize
-town_for_map <- newtc2 %>%
+# Summarize dataset to find the total claims for each town in the year 2020
+tc2020 <- tc2020 %>%
   group_by(Town.Name) %>%
   summarize(total_claims = sum(claims, na.rm=TRUE)) %>%
   ungroup()
 
 # Join with town data for mapping
-
 towns <- towns %>%
-  rename(Town.Name = NAME)
+  rename(Town.Name = town)
 
-claim_map <- full_join(towns, town_for_map, by = "Town.Name")
+town_claim_map <- full_join(towns, tc2020, by = "Town.Name")
 
-
-claim_map %>%
+# Create map of claims
+town_claim_map %>%
   ggplot() +
   geom_sf() +
   geom_sf(aes(fill = total_claims)) +
