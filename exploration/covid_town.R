@@ -217,3 +217,25 @@ town_claim_map %>%
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5),
         plot.subtitle = element_text(hjust = 0.5)) 
+
+
+## Create line chart for a given town
+swe <- tc %>%
+  # App will give option to select a town
+  filter(Town.Name %in% c("South Windsor", "Ellington")) %>%
+  dplyr::mutate(year = year(date),
+         claims = str_remove_all(claims, ",")) %>%
+  mutate(claims = as.numeric(claims)) %>%
+  dplyr::group_by(Town.Name, year) %>%
+  dplyr::summarize(total = sum(claims)) %>%
+  ungroup()
+
+swe %>%
+  ggplot(aes(year, total, color = Town.Name)) +
+  geom_line() +
+  labs(title = "UI Claims filed in CT Towns",
+       x = "Year",
+       y = "Total Claims",
+       color = "Town") +
+  theme_minimal()
+
