@@ -2,16 +2,13 @@
 
 ## use census data to get cases per 100K
 ## use age data to explore age groups most affected
-
-library(RSocrata)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(lubridate)
 library(stringr)
-
-options(tigris_use_cache = TRUE)
 library(tigris)
+options(tigris_use_cache = TRUE)
 library(maps)
 library(USAboundaries)
 library(USAboundariesData)
@@ -37,38 +34,36 @@ ggplot() +
   theme_void()
 
 
-## Covid town data
+
+# Covid Cases by Town -----------------------------------------------------
 
 ## RSocrata method
 #covid_town <- RSocrata::read.socrata("https://data.ct.gov/resource/28fr-iqnx.csv")
 
 ## Read in covid town data from medical subfolder
-covid_town <- read.csv("data/medical/covid_town.csv")
-dplyr::glimpse(covid_town)
-
-## Remove time character that comes after the date
-covid_town$lastupdatedate <- sub("T.*", "", covid_town$lastupdatedate)
-## Convert date character string to date format
-covid_town$lastupdatedate <- lubridate::ymd(covid_town$lastupdatedate)
-class(covid_town$lastupdatedate) #check that it worked
-
-
-## Transform names
-town_cases <- covid_town %>%
+covid_town <- read.csv("data/medical/covid_town.csv") %>%
   rename(date = lastupdatedate,
          totalcases = towntotalcases,
          per100k = towncaserate)
+dplyr::glimpse(covid_town)
+
+## Remove time character that comes after the date
+covid_town$date <- sub("T.*", "", covid_town$date)
+## Convert date character string to date format
+covid_town$date <- lubridate::ymd(covid_town$date)
+class(covid_town$date) #check that it worked
 
 
-## Merge town map data with town covid data
+## Merge the Town Map data with the Town Covid data
 towns <- towns %>%
   rename(town = NAME)
 
 ## Join them together
-all_together <- full_join(towns, town_cases, by = "town")
+town_cases_map <- full_join(towns, covid_town, by = "town")
 
-## Data for cumulative stats thru mid december
-mid_dec <- all_together %>%
+## Subset data to the most recent updated date--This includes cumulative cases thru mid-December
+# and makes our dataset smaller and easier to manage
+mid_dec <- town_cases_map %>%
   filter(date == "2020-12-15")
 
 ## Create color palette
@@ -92,7 +87,6 @@ p1 <- mid_dec %>%
 ## Make interactive
 library(plotly)
 ggplotly(p1)
-
 
 
 
