@@ -94,8 +94,10 @@ ui_int <- plot_ly(ui_dumb, color = I("gray80")) %>%
               name = "2020", color = I("black")) %>%
   layout(
   title = "UI Claims Filed in 2013 versus 2020",
-  xaxis = list(title = "UI Claims Filed (in thousands)"),
+  xaxis = list(title = "UI Claims Filed (in thousands)"), 
+  yaxis = list(title = ""), 
   margin = list(l = 65))
+
 ui_int
 
 ## Option 2: Next to end
