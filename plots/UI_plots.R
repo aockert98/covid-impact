@@ -13,8 +13,8 @@ source("transformation/UI_claims_data.R")
 
 ## Plot 1: Barplot total claims 2019 vs 2020
 ui %>%
-  dplyr::filter(year > 2018, month < 12) %>%
-  ggplot2::ggplot(ggplot2::aes(month, total_month, fill = as.factor(year))) +
+  dplyr::filter(year > 2018, month < 12) %>% 
+  ggplot2::ggplot(ggplot2::aes(x = as.factor(month), y = total_month, fill = as.factor(year))) +
   ggplot2::geom_col(position = "dodge") + 
   ggplot2::scale_fill_discrete(name = "Year") + 
   ggplot2::labs(x = "Month", y = "Total claims",
