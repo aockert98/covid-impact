@@ -115,11 +115,13 @@ ui_dumb %>%
   ggplot2::theme_minimal() +
   ggplot2::theme(plot.margin = unit(c(1.5,3,1,0), "cm")) +
   #geom_rect(aes(xmin = 100, xmax = 120, ymin = -Inf, ymax = Inf), fill = "grey") +
-  geom_text(aes(label=paste0(round(delta), "%"), y = industry, x = `2020`/1000), hjust = -0.5, 
+  geom_text(aes(label=paste0(ifelse(delta > 0, "+" , ""), round(delta), "%"), y = industry, x = `2020`/1000, color = ifelse(delta > 0, "green", "red")), hjust = -0.5, 
             size = 3) +
-  geom_text(data = filter(ui_dumb, industry=="Wholesale Trade"),
-            aes(x = 90, y = industry, label = "Percent Change"), vjust = -1, hjust = 0.5) +
-  scale_y_discrete(expand=c(0.15,0))
+  # geom_text(data = filter(ui_dumb, industry=="Wholesale Trade"),
+  #           aes(x = 90, y = industry, label = "Percent Change"), vjust = -1, hjust = 0.5) +
+  scale_y_discrete(expand=c(0.15,0)) + 
+  ggplot2::expand_limits(x = c(-2, 90)) + 
+  ggplot2::theme(legend.position = "none")
 
 ## Interactive Data Table
 ui_dt %>% 
