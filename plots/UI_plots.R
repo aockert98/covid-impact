@@ -13,8 +13,8 @@ source("transformation/UI_claims_data.R")
 
 ## Plot 1: Barplot total claims 2019 vs 2020
 ui %>%
-  dplyr::filter(year > 2018, month < 12) %>%
-  ggplot2::ggplot(ggplot2::aes(month, total_month, fill = as.factor(year))) +
+  dplyr::filter(year > 2018, month < 12) %>% 
+  ggplot2::ggplot(ggplot2::aes(x = as.factor(month), y = total_month, fill = as.factor(year))) +
   ggplot2::geom_col(position = "dodge") + 
   ggplot2::scale_fill_discrete(name = "Year") + 
   ggplot2::labs(x = "Month", y = "Total claims",
@@ -94,8 +94,10 @@ ui_int <- plot_ly(ui_dumb, color = I("gray80")) %>%
               name = "2020", color = I("black")) %>%
   layout(
   title = "UI Claims Filed in 2013 versus 2020",
-  xaxis = list(title = "UI Claims Filed (in thousands)"),
+  xaxis = list(title = "UI Claims Filed (in thousands)"), 
+  yaxis = list(title = ""), 
   margin = list(l = 65))
+
 ui_int
 
 ## Option 2: Next to end
@@ -113,11 +115,13 @@ ui_dumb %>%
   ggplot2::theme_minimal() +
   ggplot2::theme(plot.margin = unit(c(1.5,3,1,0), "cm")) +
   #geom_rect(aes(xmin = 100, xmax = 120, ymin = -Inf, ymax = Inf), fill = "grey") +
-  geom_text(aes(label=paste0(round(delta), "%"), y = industry, x = `2020`/1000), hjust = -0.5, 
+  geom_text(aes(label=paste0(ifelse(delta > 0, "+" , ""), round(delta), "%"), y = industry, x = `2020`/1000, color = ifelse(delta > 0, "green", "red")), hjust = -0.5, 
             size = 3) +
-  geom_text(data = filter(ui_dumb, industry=="Wholesale Trade"),
-            aes(x = 90, y = industry, label = "Percent Change"), vjust = -1, hjust = 0.5) +
-  scale_y_discrete(expand=c(0.15,0))
+  # geom_text(data = filter(ui_dumb, industry=="Wholesale Trade"),
+  #           aes(x = 90, y = industry, label = "Percent Change"), vjust = -1, hjust = 0.5) +
+  scale_y_discrete(expand=c(0.15,0)) + 
+  ggplot2::expand_limits(x = c(-2, 90)) + 
+  ggplot2::theme(legend.position = "none")
 
 ## Interactive Data Table
 ui_dt %>% 
