@@ -14,7 +14,9 @@ library(stringr)
 
 
 ## Read in "UI Claims by Industry" as csv
-ui <- read.csv("data/economic/ui_claims_data.csv") %>% 
+ui <- read.csv(
+  here::here("data/economic/ui_claims_data.csv")
+)%>% 
   # add columns that parse out the "year" & "month" from "new_claim_date"
   dplyr::mutate(
     new_claim_date = as.Date(new_claim_date), 
