@@ -63,6 +63,9 @@ ui_industry <- ui_industry %>%
     year, breaks = c(2004:2020), 
     labels = c(2005:2020))) 
   
+## Change year names
+ui_industry2 <- ui_industry
+ui_industry2$year <- paste0("year",ui_industry2$year)
 
 ## Long to Wide data for Dumbbell Plot
 ui_dumb <- ui_industry %>%
@@ -70,6 +73,18 @@ ui_dumb <- ui_industry %>%
   pivot_wider(names_from = "year",
               values_from = "industry_year",
               values_fn = mean) 
+ui_dumb2 <- ui_industry2 %>%
+  select(year, industry, industry_year) %>%
+  pivot_wider(names_from = "year",
+              values_from = "industry_year",
+              values_fn = mean)
+
+## Function to change user input from 2005 to "year2005", eg
+
+myFunc <- function(x){
+  new <- paste0("year",x)
+  
+}
 
 
 ## Percent change column formula:
