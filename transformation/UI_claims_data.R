@@ -89,7 +89,7 @@ ui_dumb2 <- ui_industry2 %>%
 #   new <- paste0("year",x)
 #   print(new)
 #   ui_dumb2 <- ui_dumb2 %>%
-#     mutate(hey = year2020 - (paste0("year",x)))
+#     mutate(hey = year2020 - !! dplyr::sym(paste0("year", x)))
 #  # ui_dumb2 <- ui_dumb2 %>%
 #   #  dplyr::mutate(delta2 = (year2020 - new)/new * 100)
 # }
@@ -97,6 +97,20 @@ ui_dumb2 <- ui_industry2 %>%
 # 
 # ui_dumb2 %>% 
 #   mutate(hi = year2020 - year2019)
+
+
+
+
+# generate_chart <- function(data, year_input) {
+#   
+#   year_input <- paste0("year", year_input)
+#   
+#   data %>% 
+#     dplyr::filter(year = year_input) %>% 
+#     ggplot()
+#   
+#   
+# }
 
 
 ## Percent change column formula:
