@@ -13,10 +13,15 @@ source(
   here::here("transformation/UI_claims_data.R")
 )
 
-# 
+# Covid Data by CT Town
 source(
   here::here("transformation/covid_town.R")
 )
+
+# Set a color palette
+cols <- colorRampPalette(colors = c("#f9e8bf","#f2dc71","#eea353","#f78037",
+                                    "#ea4b24","#eb411f","#eb371a","#eb220f",
+                                    "#c11108","#960000"))
 
 
 # Build UI
