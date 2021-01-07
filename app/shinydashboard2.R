@@ -4,9 +4,32 @@ library(shinydashboard)
 library(shiny)
 library(shinyWidgets)
 library(shinythemes)
-# Grab the UI claims data 
-#source("covid-impact/transformation/UI_claims_data.R")
+library(plotly)
 
+# Import Data ----
+
+# UI Claims Data
+source(
+  here::here("transformation/UI_claims_data.R")
+)
+
+# Covid Data by CT Town
+source(
+  here::here("transformation/covid_town.R")
+)
+
+# Set a color palette
+cols <- colorRampPalette(colors = c("#f9e8bf","#f2dc71","#eea353","#f78037",
+                                    "#ea4b24","#eb411f","#eb371a","#eb220f",
+                                    "#c11108","#960000"))
+
+# Source custom helper functions
+source(
+  here::here("app/helpers.R")
+)
+
+
+# Build UI
 header <- dashboardHeader(
   title = "COVID in CT"
 )
@@ -58,8 +81,36 @@ body <- dashboardBody(
             fluidRow(
             #"Explore the Economic Impact of COVID",
             tabBox( width = 12,
-              title = "Plots",
-              tabPanel("Dumbbell Plot", plotOutput("plot")),
+              title = "Plots", 
+              
+              tabPanel(
+                "Dumbbell Plot", 
+                
+                shiny::fluidRow(
+                  
+                  # Set static dumbbell ggplot inputs
+                  shiny::column(
+                    width = 4, 
+                    # shinyWidgets::multiInput(
+                    shinyWidgets::pickerInput(
+                      inputId = "dumbbell_industries", 
+                      label = "Select Industries:",
+                      choices = c(ui_dumb2$industry),
+                      selected = c(ui_dumb2$industry), 
+                      multiple = TRUE
+                    )
+                  ), 
+                  
+                  shiny::column(
+                    width = 8, 
+                    plotOutput("plot")
+                  )
+                  
+                )
+                
+              ),
+              
+              
               tabPanel("Interactive Dumbbell Plot", plotlyOutput("plotlyplot")),
               tabPanel("Line Graph")
             ))),
@@ -71,30 +122,17 @@ body <- dashboardBody(
 ui <- dashboardPage(header, sidebar, body, skin = "black")
 
 
+# Build Server
 server <- function(input, output) {
+  
   output$plot <- renderPlot({
-    ui_dumb2 %>%
-      filter(industry != "Self Employed") %>%
-      ggplot2::ggplot(aes(x = year2013/1000, xend = year2020/1000, y = industry, group = industry)) +
-      ggalt::geom_dumbbell(color = "darkgray",
-                           colour_x = "darkgray",
-                           colour_xend="black") +
-      ggplot2::labs(x = "UI Claims Filed (in thousands)",
-                    y = "",
-                    title = "The Economic Impact of the Coronavirus Pandemic in Connecticut",
-                    subtitle = "Comparing Unemployment Insurance Claims Filed in 2013 vs. 2020", 
-                    caption = "Source: (fill in)") +
-      ggplot2::theme_minimal() +
-      ggplot2::theme(plot.margin = unit(c(1.5,3,1,0), "cm")) +
-      #geom_rect(aes(xmin = 100, xmax = 120, ymin = -Inf, ymax = Inf), fill = "grey") +
-      geom_text(aes(label=paste0(ifelse(delta > 0, "+" , ""), round(delta), "%"), y = industry, x = year2020/1000, color = ifelse(delta > 0, "green", "red")), hjust = -0.5, 
-                size = 3) +
-      # geom_text(data = filter(ui_dumb, industry=="Wholesale Trade"),
-      #           aes(x = 90, y = industry, label = "Percent Change"), vjust = -1, hjust = 0.5) +
-      scale_y_discrete(expand=c(0.15,0)) + 
-      ggplot2::expand_limits(x = c(-2, 90)) + 
-      ggplot2::theme(legend.position = "none")
+    
+    generate_dumbbell_ggplot(data = ui_dumb2, industry = input$dumbbell_industries)
+    
   })
+  
+  
+  
   output$UI_table <- DT::renderDT({
     ui_dt %>% 
       DT::datatable(
@@ -105,7 +143,7 @@ server <- function(input, output) {
         options = list(dom = "Bfrtip",
                        buttons = c("csv","excel","pdf")))
   })
-  library(plotly)
+  
   output$plotlyplot <- renderPlotly( {
   ui_int <- plot_ly(ui_dumb, color = I("gray80")) %>% 
     add_segments(x = ~`2013`, xend = ~`2020`,

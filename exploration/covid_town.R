@@ -41,7 +41,9 @@ ggplot() +
 #covid_town <- RSocrata::read.socrata("https://data.ct.gov/resource/28fr-iqnx.csv")
 
 ## Read in covid town data from medical subfolder
-covid_town <- read.csv("data/medical/covid_town.csv") %>%
+covid_town <- read.csv(
+  here::here("data/medical/covid_town.csv")
+)%>%
   rename(date = lastupdatedate,
          totalcases = towntotalcases,
          per100k = towncaserate)
@@ -94,7 +96,6 @@ ggplotly(p1)
 
 ## Covid Ages
 ## find census pop data for age group if possible
-install.packages("here")
 library(here)
 # Read in data from "data/" folder
 covid_age <- readr::read_csv(file = here::here("data/covid_age_data.csv"))

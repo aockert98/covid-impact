@@ -14,7 +14,9 @@ library(stringr)
 
 
 ## Read in "UI Claims by Industry" as csv
-ui <- read.csv("data/economic/ui_claims_data.csv") %>% 
+ui <- read.csv(
+  here::here("data/economic/ui_claims_data.csv")
+)%>% 
   # add columns that parse out the "year" & "month" from "new_claim_date"
   dplyr::mutate(
     new_claim_date = as.Date(new_claim_date), 
@@ -33,7 +35,7 @@ ui <- read.csv("data/economic/ui_claims_data.csv") %>%
   dplyr::mutate(month_abbr = lubridate::month(new_claim_date, label = TRUE)) 
 
 ## Examine data
-dplyr::glimpse(ui)
+# dplyr::glimpse(ui)
 
 
 ## Pivot data from wide to long format, creating "Industry" and "Claims" columns
@@ -79,20 +81,36 @@ ui_dumb2 <- ui_industry2 %>%
               values_from = "industry_year",
               values_fn = mean)
 
+
+
 ## Function to change user input from 2005 to "year2005", eg
 
-myFunc <- function(x){
-  new <- paste0("year",x)
-  print(new)
-  ui_dumb2 <- ui_dumb2 %>%
-    mutate(hey = year2020 - (paste0("year",x)))
- # ui_dumb2 <- ui_dumb2 %>%
-  #  dplyr::mutate(delta2 = (year2020 - new)/new * 100)
-}
-myFunc(2015)
+# myFunc <- function(x){
+#   new <- paste0("year",x)
+#   print(new)
+#   ui_dumb2 <- ui_dumb2 %>%
+#     mutate(hey = year2020 - !! dplyr::sym(paste0("year", x)))
+#  # ui_dumb2 <- ui_dumb2 %>%
+#   #  dplyr::mutate(delta2 = (year2020 - new)/new * 100)
+# }
+# myFunc(2015)
+# 
+# ui_dumb2 %>% 
+#   mutate(hi = year2020 - year2019)
 
-ui_dumb2 %>%
-  mutate(hi = year2020 - year2019)
+
+
+
+# generate_chart <- function(data, year_input) {
+#   
+#   year_input <- paste0("year", year_input)
+#   
+#   data %>% 
+#     dplyr::filter(year = year_input) %>% 
+#     ggplot()
+#   
+#   
+# }
 
 
 ## Percent change column formula:
@@ -104,7 +122,6 @@ ui_dumb2 <- ui_dumb2 %>%
   mutate(delta = (year2020 - year2013)/year2013 * 100)
 
 ## Clean up for Data Table 
-library(DT)
 ui_dt <- ui_industry %>%
   # select relevant columns
   dplyr::select(Year = year,
@@ -117,7 +134,7 @@ ui_dt <- ui_industry %>%
   dplyr::summarize(Total = mean(Total),
                    .groups = "drop")
 
-
+rm(ui, ui_industry, ui_industry2)
 
 
 
