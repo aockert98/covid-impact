@@ -83,8 +83,16 @@ ui_dumb2 <- ui_industry2 %>%
 
 myFunc <- function(x){
   new <- paste0("year",x)
-  
+  print(new)
+  ui_dumb2 <- ui_dumb2 %>%
+    mutate(hey = year2020 - (paste0("year",x)))
+ # ui_dumb2 <- ui_dumb2 %>%
+  #  dplyr::mutate(delta2 = (year2020 - new)/new * 100)
 }
+myFunc(2015)
+
+ui_dumb2 %>%
+  mutate(hi = year2020 - year2019)
 
 
 ## Percent change column formula:
