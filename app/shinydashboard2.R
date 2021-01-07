@@ -32,30 +32,39 @@ body <- dashboardBody(
   tabItems(
     tabItem(tabName = "Welcome",
             "Welcome to our project!",
-            fluidRow(
+            #fluidRow(
               box(
                 width = 12,
                 title = "About our project"
-              )
-            )),
+              )),
     tabItem(tabName = "data",
-            "Learn about our data!",
-            box(
-              width = 12,
-              title = "Interactive Data Table",
-              DT::DTOutput("UI_table")
-            )),
+            "Explore our data!",
+            fluidRow(
+              box(width = 12,
+                  "Explore our Data")
+            ),
+            fluidRow(
+              box(
+                width = 12,
+                title = "Interactive Data Table",
+                DT::DTOutput("UI_table")
+              ))
+            ),
+        
     tabItem(tabName = "economic",
-            "Explore the Economic Impact of COVID",
-            plotOutput("plot")),
+            fluidRow(
+              "Explore the Economic Impact of COVID-19 in CT"
+            ),
+            fluidRow(
+            #"Explore the Economic Impact of COVID",
+            tabBox( width = 12,
+              title = "Plots",
+              tabPanel("Dumbbell Plot", plotOutput("plot")),
+              tabPanel("Interactive Dumbbell Plot", plotlyOutput("plotlyplot")),
+              tabPanel("Line Graph")
+            ))),
     tabItem(tabName = "cases",
             "Explore COVID Cases throughout CT")))
-  
-  #tabBox(
-   # title = "Options",
-    #tabPanel("Plot1", "Bar"),
-    #tabPanel("Plot2", "Second"),
-    #tabPanel("Plot3", plotOutput("plot"))))
 
 
 ui <- dashboardPage(header, sidebar, body, skin = "black")
@@ -95,5 +104,22 @@ server <- function(input, output) {
         options = list(dom = "Bfrtip",
                        buttons = c("csv","excel","pdf")))
   })
+  library(plotly)
+  output$plotlyplot <- renderPlotly( {
+  ui_int <- plot_ly(ui_dumb, color = I("gray80")) %>% 
+    add_segments(x = ~`2013`, xend = ~`2020`,
+                 y = ~industry, yend = ~industry, 
+                 showlegend = FALSE) %>%
+    add_markers(x = ~`2013`, y = ~industry, 
+                name = "2013", color = I("gray80")) %>%
+    add_markers(x = ~`2020`, y = ~industry, 
+                name = "2020", color = I("black")) %>%
+    layout(
+      title = "UI Claims Filed in 2013 versus 2020",
+      xaxis = list(title = "UI Claims Filed (in thousands)"), 
+      yaxis = list(title = ""), 
+      margin = list(l = 65))
+  
+  ui_int })
 }
 shiny::shinyApp(ui, server)
