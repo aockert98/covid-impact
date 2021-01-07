@@ -104,7 +104,7 @@ ui_dumb2 <- ui_dumb2 %>%
   mutate(delta = (year2020 - year2013)/year2013 * 100)
 
 ## Clean up for Data Table 
-
+library(DT)
 ui_dt <- ui_industry %>%
   # select relevant columns
   dplyr::select(Year = year,
