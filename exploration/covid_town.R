@@ -96,7 +96,6 @@ ggplotly(p1)
 
 ## Covid Ages
 ## find census pop data for age group if possible
-install.packages("here")
 library(here)
 # Read in data from "data/" folder
 covid_age <- readr::read_csv(file = here::here("data/covid_age_data.csv"))
