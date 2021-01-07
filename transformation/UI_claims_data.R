@@ -100,6 +100,8 @@ ui_dumb2 %>%
 ui_dumb <- ui_dumb %>%
   mutate(delta = (`2020`-`2013`)/`2013` * 100)
 
+ui_dumb2 <- ui_dumb2 %>%
+  mutate(delta = (year2020 - year2013)/year2013 * 100)
 
 ## Clean up for Data Table 
 
