@@ -5,9 +5,21 @@ library(shiny)
 library(shinyWidgets)
 library(shinythemes)
 library(plotly)
-# Grab the UI claims data 
-# source(here::here("transformation/UI_claims_data.R"))
 
+# Import Data ----
+
+# UI Claims Data
+source(
+  here::here("transformation/UI_claims_data.R")
+)
+
+# 
+source(
+  here::here("transformation/covid_town.R")
+)
+
+
+# Build UI
 header <- dashboardHeader(
   title = "COVID in CT"
 )
@@ -72,6 +84,7 @@ body <- dashboardBody(
 ui <- dashboardPage(header, sidebar, body, skin = "black")
 
 
+# Build Server
 server <- function(input, output) {
   output$plot <- renderPlot({
     ui_dumb2 %>%
