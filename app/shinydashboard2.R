@@ -4,8 +4,9 @@ library(shinydashboard)
 library(shiny)
 library(shinyWidgets)
 library(shinythemes)
+library(plotly)
 # Grab the UI claims data 
-#source("covid-impact/transformation/UI_claims_data.R")
+# source(here::here("transformation/UI_claims_data.R"))
 
 header <- dashboardHeader(
   title = "COVID in CT"
@@ -105,7 +106,7 @@ server <- function(input, output) {
         options = list(dom = "Bfrtip",
                        buttons = c("csv","excel","pdf")))
   })
-  library(plotly)
+  
   output$plotlyplot <- renderPlotly( {
   ui_int <- plot_ly(ui_dumb, color = I("gray80")) %>% 
     add_segments(x = ~`2013`, xend = ~`2020`,
