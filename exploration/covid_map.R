@@ -36,5 +36,5 @@ map_plot <- covid_df %>%
     fill = "Total Cases") +
   ggplot2::theme_void() +
   ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
-
+map_plot
 plotly::ggplotly(map_plot)
