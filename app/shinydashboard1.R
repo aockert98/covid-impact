@@ -5,18 +5,14 @@ library(shiny)
 library(shinyWidgets)
 library(shinythemes)
 # Grab the UI claims data 
-#source("transformation/UI_claims_data.R")
+#source("covid-impact/transformation/UI_claims_data.R")
 
 header <- dashboardHeader(
-  dropdownMenu(type = "messages",
-               messageItem(
-                 from = "Amelia",
-                 message = "Hello there!"
-               )
+  title = "COVID in CT"
 )
-)
- 
+
 sidebar <- dashboardSidebar(
+  width = 150,
   sidebarMenu(
     menuItem("Welcome", 
              tabName = "Welcome",
@@ -28,7 +24,13 @@ sidebar <- dashboardSidebar(
 )
 
 body <- dashboardBody(
-  plotOutput("plot"),
+  #fluidRow(
+   # box(plotOutput("plot"))
+  #),
+  box(width = 8,
+      title = "Plot!",
+      plotOutput("plot")),
+  #plotOutput("plot"),
   tabItems(
     tabItem(tabName = "Welcome",
            "Welcome to our project!"),
@@ -37,7 +39,8 @@ body <- dashboardBody(
    tabBox(
       title = "Options",
       tabPanel("Plot1", "Bar"),
-      tabPanel("Plot2", "Second")))
+      tabPanel("Plot2", "Second"),
+      tabPanel("Plot3", plotOutput("plot"))))
 
 
 ui <- dashboardPage(header, sidebar, body, skin = "black")
