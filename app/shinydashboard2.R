@@ -5,6 +5,7 @@ library(shiny)
 library(shinyWidgets)
 library(shinythemes)
 library(plotly)
+library(shinydashboardPlus)
 
 # Import Data ----
 
@@ -57,11 +58,35 @@ body <- dashboardBody(
   tabItems(
     tabItem(tabName = "Welcome",
             "Welcome to our project!",
-            #fluidRow(
-              box(
-                width = 12,
-                title = "About our project"
-              )),
+              shinydashboardPlus::descriptionBlock(
+                header = "About our project",
+                text = "Welcome to our COVID-19 Explore page.\n
+                We are seeking to explore the economic and medical impact\n
+                of the coronavirus pandemic on the state of Connecticut."
+                ),
+            box(
+              title = "About our Project",
+              status = "primary",
+              width = NULL,
+              shinydashboardPlus::userPost(
+                "Welcome to our COVID-19 explore page!
+                We are seeking to explore the economic and
+                medical impact the coronavirus pandemic has had
+                on the state of Connecticut."
+              )
+            ),
+            shinydashboardPlus::widgetUserBox(
+              title = "Amelia Ockert",
+              subtitle = "Student",
+              type = NULL,
+              src = "https://image.isu.pub/171215165947-27b595478b4ba69b06b7a7d35d3a40c7/jpg/page_1_thumb_large.jpg",
+              color = "blue",
+              closable = TRUE,
+              footer = "Student at Dartmouth, interested in Data Viz"
+            )
+           
+            ),
+            
     tabItem(tabName = "data",
             "Explore our data!",
             fluidRow(

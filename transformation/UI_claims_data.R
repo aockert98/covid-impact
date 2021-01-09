@@ -121,6 +121,24 @@ ui_dumb <- ui_dumb %>%
 ui_dumb2 <- ui_dumb2 %>%
   mutate(delta = (year2020 - year2013)/year2013 * 100)
 
+## Create function
+## I need to go now, will clean up later, but this works-ish
+myFunc <- function(x){
+  
+  x <- as.character(x)
+  year <- paste0("year",x)
+  print(year)
+  
+  ui_dumb3 <- ui_dumb2 %>%
+    select(year2 = year,year2020,industry) %>%
+    mutate(d = year2 - year2020)
+  return(ui_dumb3)
+}
+
+myFunc(2015)
+
+
+
 ## Clean up for Data Table 
 ui_dt <- ui_industry %>%
   # select relevant columns
