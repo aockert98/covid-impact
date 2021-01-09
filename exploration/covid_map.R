@@ -38,3 +38,27 @@ map_plot <- covid_df %>%
   ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 map_plot
 plotly::ggplotly(map_plot)
+
+## Map plot
+cols <- colorRampPalette(colors = c("#f9e8bf","#f2dc71","#eea353","#f78037",
+                                    "#ea4b24","#eb411f","#eb371a","#eb220f",
+                                    "#c11108","#960000"))
+
+covid_map <- mid_dec %>%
+  ggplot() +
+  geom_sf() +
+  geom_sf(aes(fill = per100k)) +
+  labs(title = "The Coronavirus in Connecticut Towns",
+       subtitle = "Cases per 100,000",
+       fill = "") +
+  scale_fill_gradientn(colors = cols(10)) +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5))
+
+ggplotly(covid_map)
+
+plot_ly(mid_dec,
+        split = ~NAME,
+        color= ~per100k,
+        colors = cols(10))
