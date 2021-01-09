@@ -90,7 +90,7 @@ body <- dashboardBody(
                   
                   # Set static dumbbell ggplot inputs
                   shiny::column(
-                    width = 4, 
+                    width = 2, 
                     # shinyWidgets::multiInput(
                     shinyWidgets::pickerInput(
                       inputId = "dumbbell_industries", 
@@ -102,7 +102,7 @@ body <- dashboardBody(
                   ), 
                   
                   shiny::column(
-                    width = 8, 
+                    width = 10, 
                     plotOutput("plot")
                   )
                   
@@ -144,22 +144,11 @@ server <- function(input, output) {
                        buttons = c("csv","excel","pdf")))
   })
   
-  output$plotlyplot <- renderPlotly( {
-  ui_int <- plot_ly(ui_dumb, color = I("gray80")) %>% 
-    add_segments(x = ~`2013`, xend = ~`2020`,
-                 y = ~industry, yend = ~industry, 
-                 showlegend = FALSE) %>%
-    add_markers(x = ~`2013`, y = ~industry, 
-                name = "2013", color = I("gray80")) %>%
-    add_markers(x = ~`2020`, y = ~industry, 
-                name = "2020", color = I("black")) %>%
-    layout(
-      title = "UI Claims Filed in 2013 versus 2020",
-      xaxis = list(title = "UI Claims Filed (in thousands)"), 
-      yaxis = list(title = ""), 
-      margin = list(l = 65))
-  
-  ui_int })
+  output$plotlyplot <- renderPlotly({
+    
+    generate_plotly(data = ui_dumb)
+    
+    })
   
   output$covid_town <- renderPlot( {
     mid_dec %>%
