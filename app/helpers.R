@@ -26,7 +26,12 @@ generate_dumbbell_ggplot <- function(data, industry) {
 }
 
 generate_plotly <- function(data){
-  plot_ly(data, color = I("gray80")) %>% 
+  plot_ly(data, color = I("gray80"),
+          hoverinfo = 'text',
+          text = ~paste('</br><b>Industry:</b> ', industry,
+                        '</br><b>2013 claims:</b> ', `2013`,
+                        '<br><b>2020 claims:</b> ', `2020`,
+                        '<br><b>Percent Change:</b> ', paste0(round(delta,1),"%"))) %>% 
     add_segments(x = ~`2013`, xend = ~`2020`,
                  y = ~industry, yend = ~industry, 
                  showlegend = FALSE) %>%
@@ -42,6 +47,9 @@ generate_plotly <- function(data){
 }
 
 generate_map <- function(data){
+  cols <- colorRampPalette(colors = c("#f9e8bf","#f2dc71","#eea353","#f78037",
+                                      "#ea4b24","#eb411f","#eb371a","#eb220f",
+                                      "#c11108","#960000"))
   
   data %>%
     ggplot() +
@@ -56,3 +64,4 @@ generate_map <- function(data){
           plot.subtitle = element_text(hjust = 0.5))
   
 }
+generate_map(mid_dec)
