@@ -41,3 +41,18 @@ generate_plotly <- function(data){
       margin = list(l = 65))
 }
 
+generate_map <- function(data){
+  
+  data %>%
+    ggplot() +
+    geom_sf() +
+    geom_sf(aes(fill = per100k)) +
+    labs(title = "The Coronavirus in Connecticut Towns",
+         subtitle = "Cases per 100,000",
+         fill = "") +
+    scale_fill_gradientn(colors = cols(10)) +
+    theme_void() +
+    theme(plot.title = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5))
+  
+}
