@@ -44,9 +44,11 @@ sidebar <- dashboardSidebar(
              tabName = "data", 
              icon = icon("filter")),
     menuItem("Economic Impact",
-             tabName = "economic"),
+             tabName = "economic",
+             icon = icon("chart-line")),
     menuItem("Case Explorer",
-             tabName = "cases")
+             tabName = "cases",
+             icon = icon("hospital"))
   )
 )
 
