@@ -61,4 +61,7 @@ ggplotly(covid_map)
 plot_ly(mid_dec,
         split = ~NAME,
         color= ~per100k,
-        colors = cols(10))
+        colors = cols(10),
+        hoverinfo = 'text',
+        text = ~paste('<br>Town: ', NAME,
+                      '<br>Cases per 100k: ', per100k))
