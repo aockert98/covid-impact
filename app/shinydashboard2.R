@@ -56,6 +56,7 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody(
 
   tabItems(
+    ## Welcome tab for project background info
     tabItem(tabName = "Welcome",
             "Welcome to our project!",
               shinydashboardPlus::descriptionBlock(
@@ -75,6 +76,8 @@ body <- dashboardBody(
                 on the state of Connecticut."
               )
             ),
+            
+            ## Create "About Author" type section
             shinydashboardPlus::widgetUserBox(
               title = "Amelia Ockert",
               subtitle = "Student",
@@ -84,9 +87,9 @@ body <- dashboardBody(
               closable = TRUE,
               footer = "Student at Dartmouth, interested in Data Viz"
             )
-           
             ),
-            
+    
+    ## Data tab to explore interactive data table
     tabItem(tabName = "data",
             "Explore our data!",
             fluidRow(
@@ -100,7 +103,8 @@ body <- dashboardBody(
                 DT::DTOutput("UI_table")
               ))
             ),
-        
+    
+    ## Tab to explore the economic-related plots
     tabItem(tabName = "economic",
             fluidRow(
               "Explore the Economic Impact of COVID-19 in CT"
@@ -131,11 +135,8 @@ body <- dashboardBody(
                     width = 9, 
                     plotOutput("plot")
                   ),
-                  
                 )
-                
               ),
-              
               
               tabPanel("Interactive Dumbbell Plot", plotlyOutput("plotlyplot")),
               tabPanel("Line Graph")
@@ -151,9 +152,9 @@ ui <- dashboardPage(header, sidebar, body, skin = "black")
 # Build Server
 server <- function(input, output) {
   
+  ## Static dumbbell plot, makes call to our "helpers.R" functions file
   output$plot <- renderPlot({
-    
-    #generate_dumbbell_ggplot(data = ui_dumb2, industry = input$dumbbell_industries)
+
     generate_dumbbell_ggplot2(data = ui_dumb2, year = input$year)
     
   })
