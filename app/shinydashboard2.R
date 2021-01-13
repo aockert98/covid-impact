@@ -117,21 +117,20 @@ body <- dashboardBody(
                   
                   # Set static dumbbell ggplot inputs
                   shiny::column(
-                    width = 2, 
-                    # shinyWidgets::multiInput(
-                    shinyWidgets::pickerInput(
-                      inputId = "dumbbell_industries", 
-                      label = "Select Industries:",
-                      choices = c(ui_dumb2$industry),
-                      selected = c(ui_dumb2$industry), 
-                      multiple = TRUE
-                    )
+                    width = 3,
+                    shiny::sliderInput(
+                      inputId = "year",
+                      label = "Select Year",
+                      min = 2005,
+                      max = 2020, 
+                      value = 2008,
+                      sep = "")
                   ), 
                   
                   shiny::column(
-                    width = 10, 
+                    width = 9, 
                     plotOutput("plot")
-                  )
+                  ),
                   
                 )
                 
@@ -154,7 +153,8 @@ server <- function(input, output) {
   
   output$plot <- renderPlot({
     
-    generate_dumbbell_ggplot(data = ui_dumb2, industry = input$dumbbell_industries)
+    #generate_dumbbell_ggplot(data = ui_dumb2, industry = input$dumbbell_industries)
+    generate_dumbbell_ggplot2(data = ui_dumb2, year = input$year)
     
   })
   

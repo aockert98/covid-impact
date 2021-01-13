@@ -137,6 +137,19 @@ myFunc <- function(x){
 
 myFunc(2015)
 
+myFunc1 <- function(x) {
+  year <- paste0("year",x)
+  
+  ui_dumb3 <- ui_dumb2 %>%
+    select(year2 = year, year2020, industry) %>%
+    mutate(d = year2 - year2020)
+  
+  ui_dumb3 %>%
+    ggplot(aes(industry, year2)) +
+    geom_col()
+}
+
+myFunc1(2012)
 
 
 ## Clean up for Data Table 
